@@ -47,6 +47,7 @@ public class PrescriptionMapper {
         report.getPrescriptions().add(prescription);
         report.setDoctorProfile(doctorProfile);
         doctorProfile.getReports().add(report);
+        prescription.setReport(report);
         return prescription;
     }
 
@@ -74,8 +75,8 @@ public class PrescriptionMapper {
         List<ReportDTO> reportDTOS=new ArrayList<>();
         for (Report report:reports) {
             ReportDTO reportDTO=new ReportDTO();
+            System.out.println("--------------------------> :"+report.getPrescriptions());
             reportDTO.setCount((long) report.getPrescriptions().size());
-
             reportDTO.setDay(report.getDay());
             reportDTOS.add(reportDTO);
         }
