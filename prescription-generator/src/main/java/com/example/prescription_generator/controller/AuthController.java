@@ -14,13 +14,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RestController
-@RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000")
+@Controller
 @RequiredArgsConstructor
 public class AuthController {
     private final UserService userService;
@@ -28,7 +28,25 @@ public class AuthController {
     private final JwtUtils jwtUtils;
     private final ValidationService validationService;
     private final UserValidationService userValidationService;
+
+    @GetMapping("/")
+    public String startPage(HttpServletRequest request){
+        if(SecurityContextHolder.getContext().getAuthentication().isAuthenticated()){
+            return "redirect:/home.html";
+        }
+        return "redirect:/login";
+    }
+    @GetMapping("/register")
+    public String registerUser(){
+        return "register";
+    }
+    @GetMapping("/login")
+    public String loginUser(){
+        return "login";
+    }
+
     @PostMapping("/register")
+    @ResponseBody
     public ResponseEntity<?> register(@RequestBody UserDTO userDTO) {
         if(!validationService.validateDoctorDetails(userDTO).isEmpty()){
             return ResponseEntity.badRequest().body(validationService.validateDoctorDetails(userDTO));
@@ -36,7 +54,9 @@ public class AuthController {
         return ResponseEntity.ok(userMapper.toUserDTO(
                 userService.saveUser(userMapper.toUser(userDTO))));
     }
+
     @PostMapping("/login")
+    @ResponseBody
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
         System.out.println("Contact: "+loginDTO.getContact()+" Password: "+loginDTO.getPassword());
         MUser user= userService.findUserByContact(loginDTO.getContact());
@@ -49,6 +69,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("token",userService.authenticateUser(user,loginDTO)));
     }
     @PostMapping("/logout")
+    @ResponseBody
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<?> logout(){
         HttpServletRequest request= RequestUtils.getCurrentHttpRequest();

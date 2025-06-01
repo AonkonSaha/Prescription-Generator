@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AlphaHealth | Home</title>
+    <link rel="stylesheet" href="/css/test.css">
+    <script src="/js/auth.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+<body onload="labTestBookings();">
+<div class="sidebar">
+    <h1>ALPHAHEALTH</h1>
+    <a href="/home.html" class="nav-item">🏠 Home</a>
+    <a href="/doctor/appointment.html" class="nav-item">🩺 Doctor Appointment</a>
+    <a href="/lab/test.html" class="nav-item">🧪 Lab Test Appointment</a>
+    <a href="/notifications" class="nav-item">🔔 Notifications</a>
+    <a href="/history/history.html" class="nav-item">📜 History</a>
+    <div class="profile-container">
+        <a href="/profile.html" class="user-profile">
+            <img id="profile-pic-view" src="/images/logo.jpg" alt="Profile">
+            <span id="first-name"></span>
+        </a>
+        <button class="logout-btn" onclick="logout()">[-></button>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="header">
+        <div id="name-heading"></div>
+        <p>Book a lab test to our lab</p>
+    </div>
+
+    <div class="search-section">
+        <input type="text" class="search-bar" id="searchInput" placeholder="🔍 Search labTest..." oninput="filterDoctors()">
+        <button class="view-all-btn" onclick="goToAllDoctors()">View All LabTest</button>
+    </div>
+
+    <div class="doctor-cards" id="doctor-cards"></div>
+    <div class="pagination" id="pagination"></div>
+
+    <div class="history-section">
+        <div class="history-header">
+            <h3>LabTest History</h3>
+            <a href="/history/history.html"><button>View all history</button></a>
+        </div>
+        <table class="history-table">
+            <thead >
+            <tr>
+                <th>Booking ID</th>
+                <th>Order Date</th>
+                <th>Deliver Date</th>
+                <th>Status</th>
+                <th>Preferred Lab</th>
+            </tr>
+            </thead>
+            <tbody id="home-content"></tbody>
+
+        </table>
+        <div class="pagination" id="pagination2"></div>
+    </div>
+
+</div>
+<!-- Modal -->
+<!-- Modern Responsive Modal -->
+<div class="modal" id="appointmentModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <img id="modalImage" src="" alt="Doctor Photo">
+            <div class="modal-doctor-info">
+                <h3 id="modalName">Doctor Name</h3>
+                <p id="modalDegree">Degree</p>
+                <span id="modalSpecialty">Specialty</span>
+            </div>
+        </div>
+
+        <div class="modal-body">
+            <label for="preferredLab">Preferred Lab</label>
+            <select id="preferredLab">
+                <option value="">Loading labs...</option>
+            </select>
+
+            <label for="appointmentDate">Booking Date</label>
+            <input type="date" id="appointmentDate">
+
+            <label for="note">Note</label>
+            <textarea id="note" rows="3" placeholder="Write any notes..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+            <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+            <button class="confirm-btn" onclick="confirmAppointment()">Confirm</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const modal = document.getElementById("appointmentModal");
+    let allDoctors = [];
+    let currentPage = 1;
+    const doctorsPerPage = 4;
+    const maxVisiblePages = 5;
+    let selectedDoctor = null;
+    let selectedPreferredLab = null;
+    /***History****/
+    let appointmentsHistory = [];
+    let currentHistoryPage = 1;
+    const historyItemsPerPage = 5;
+
+    function fetchAppointmentsHistory() {
+        const token = localStorage.getItem('jwt');
+        if (!token) {
+            Toastify({
+                text: "You are not logged in",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc2626",
+                stopOnFocus: true,
+            }).showToast();
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1000);
+            return;
+        }
+        fetch(`/api/booking/lab/test/fetch/all/history`, {
+            headers: {
+                method: 'GET',
+                'Authorization': 'Bearer ' + token
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                appointmentsHistory = data.labTestsBook;
+                renderAppointmentsHistory();
+            })
+            .catch(() => {
+                Toastify({
+                    text: "Error fetching labTestsBooking data.",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#dc2626",
+                    stopOnFocus: true,
+                }).showToast();
+            });
+    }
+
+    function renderAppointmentsHistory() {
+        const tbody = document.getElementById("home-content");
+        tbody.innerHTML = "";
+
+        const start = (currentHistoryPage - 1) * historyItemsPerPage;
+        const end = start + historyItemsPerPage;
+        const pageData = appointmentsHistory.slice(start, end);
+
+        pageData.forEach(app => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+        <td data-label="Booking ID">#${app.id}</td>
+        <td data-label="Order Date">${app.oderDate}</td>
+        <td data-label="Deliver Date">${app.deliveryDate}</td>
+        <td data-label="Status">${app.status}</td>
+        <td data-label="Preferred Lab">${app.diagnosticCenterName}</td>
+        <td data-label="Preferred Lab">
+         <div class="doctor-info">
+                        <img src="${app.labTestImageUrl}" class="doctor-img"/>
+                        <div>
+                            <div class="doctor-name">${app.labTestName}</div>
+                            <div class="doctor-specialty" style="font-size: 14px; color: #6b7280;">
+                                ${"Lab Test"}
+                            </div>
+                        </div>
+                    </div>
+
+        </td>
+      `;
+            tbody.appendChild(row);
+        });
+
+        renderPaginationTwo();
+    }
+
+    function renderPaginationTwo() {
+        const totalPages = Math.ceil(appointmentsHistory.length / historyItemsPerPage);
+        const paginationDiv = document.getElementById("pagination2");
+        paginationDiv.innerHTML = "";
+
+        if (totalPages <= 1) return;
+
+        const maxPagesToShow = 5;
+        let startPage = Math.max(1, currentHistoryPage - Math.floor(maxPagesToShow / 2));
+        let endPage = startPage + maxPagesToShow - 1;
+
+        if (endPage > totalPages) {
+            endPage = totalPages;
+            startPage = Math.max(1, endPage - maxPagesToShow + 1);
+        }
+
+        const createButton = (label, page, isActive = false, isDisabled = false) => {
+            const btn = document.createElement("button");
+            btn.textContent = label;
+            btn.disabled = isDisabled;
+            if (isActive) btn.classList.add("active");
+            btn.onclick = () => {
+                currentHistoryPage = page;
+                renderAppointmentsHistory();
+            };
+            return btn;
+        };
+
+        // Previous button
+        paginationDiv.appendChild(createButton("←", currentHistoryPage - 1, false, currentHistoryPage === 1));
+
+        if (startPage > 1) {
+            paginationDiv.appendChild(createButton("1", 1));
+            if (startPage > 2) {
+                const dots = document.createElement("span");
+                dots.textContent = "...";
+                paginationDiv.appendChild(dots);
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            paginationDiv.appendChild(createButton(i, i, i === currentHistoryPage));
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const dots = document.createElement("span");
+                dots.textContent = "...";
+                paginationDiv.appendChild(dots);
+            }
+            paginationDiv.appendChild(createButton(totalPages, totalPages));
+        }
+
+        // Next button
+        paginationDiv.appendChild(createButton("→", currentHistoryPage + 1, false, currentHistoryPage === totalPages));
+    }
+
+
+    // // Call with a real user ID (e.g., from session)
+    // fetchAppointments(1);
+    /****finish**/
+    function loadPreferredLabs() {
+        const token = localStorage.getItem('jwt');
+        if (!token) {
+            Toastify({
+                text: "You are not logged in",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc2626",
+                stopOnFocus: true,
+            }).showToast();
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1000);
+            return;
+        }
+        const select = document.getElementById("preferredLab");
+        select.innerHTML = `<option value="">Loading labs...</option>`;
+
+        fetch('/api/diagnostic/center/fetch/all',{
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch labs');
+                }
+                return response.json();
+            })
+            .then(labs => {
+                select.innerHTML = `<option value="">Select preferred lab</option>`;
+                labs.clinics.forEach(lab => {
+                    const option = document.createElement("option");
+                    option.value = lab.labId;
+                    option.textContent = lab.diagnosticCenterName;
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => {
+                select.innerHTML = `<option value="">Failed to load labs</option>`;
+                console.error("Error fetching labs:", error);
+                Toastify({
+                    text: "Error fetching Diagnostic Center data.",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#dc2626",
+                    stopOnFocus: true,
+                }).showToast();
+            });
+    }
+
+
+    function labTestBookings() {
+        const token = localStorage.getItem('jwt');
+        if (!token) {
+            Toastify({
+                text: "You are not logged in",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc2626",
+                stopOnFocus: true,
+            }).showToast();
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1000);
+        }
+        const decodedToken = parseJwt(token);
+        if (!decodedToken || decodedToken.exp<Math.floor(Date.now() / 1000)) {
+            localStorage.removeItem('jwt');
+            Toastify({
+                text: "You are logged out by our system.Please login again.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc2626",
+                stopOnFocus: true,
+            }).showToast();
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1000);
+        }
+
+        //////// /fetch/user
+
+        fetch('/fetch/user', {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                const profileIconName = document.getElementById("first-name").innerHTML =data.name;
+                const profileIcon = document.getElementById("profile-pic-view").src =data.profilePictureUrl || "/images/logo.jpg";
+                const name = document.getElementById("name-heading").innerHTML =
+                    `<h2>Welcome Back, ${data.name}</h2>`;
+            })
+            .catch(() => {
+                Toastify({
+                    text: "User Name Failed Loading!",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#dc2626",
+                    stopOnFocus: true,
+                }).showToast();
+            });
+
+
+        fetch('/api/lab/test/fetch/all', {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                allDoctors = data.labTests;
+                displayDoctors();
+            })
+            .catch(() => {
+                Toastify({
+                    text: "Error labTest data.",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#dc2626",
+                    stopOnFocus: true,
+                }).showToast();
+            });
+
+
+         fetchAppointmentsHistory();
+    }
+
+    function filterList() {
+        const query = document.getElementById("searchInput").value.toLowerCase();
+        return allDoctors.filter(d =>
+            d.labTestName.toLowerCase().includes(query)
+        );
+    }
+
+    function filterDoctors() {
+        currentPage = 1;
+        displayDoctors();
+    }
+
+    function displayDoctors() {
+
+        const container = document.getElementById('doctor-cards');
+        container.innerHTML = "";
+        const doctors = filterList();
+
+        const start = (currentPage - 1) * doctorsPerPage;
+        const paginatedDoctors = doctors.slice(start, start + doctorsPerPage);
+
+        if (paginatedDoctors.length === 0) {
+            container.innerHTML = "<p>No LabTest found.</p>";
+        }
+        paginatedDoctors.forEach(((doctor,i) => {
+            selectedDoctor=null;
+            container.innerHTML += `
+        <div class="card">
+          <img src="${doctor.labTestImageUrl && doctor.labTestImageUrl.includes('/')?doctor.labTestImageUrl :'/images/logo.jpg'}" alt="${doctor.labTestName}">
+          <h3>${doctor.labTestName}</h3>
+          <button onclick="openModal(${i})">LabTest Book</button>
+        </div>`;
+        }));
+
+        renderPagination();
+    }
+
+    function openModal(index) {
+        const doctor = allDoctors[index+(currentPage-1)*doctorsPerPage];
+        selectedDoctor = doctor;
+        document.getElementById("modalImage").src = doctor.labTestImageUrl;
+        document.getElementById("modalName").innerText = doctor.labTestName;
+        document.getElementById("modalDegree").innerText = doctor.labTestName;
+        document.getElementById("modalSpecialty").innerText = doctor.labTestName;
+        /***After***/
+        document.getElementById("appointmentDate").value = "";
+        document.getElementById("note").value = "";
+
+         loadPreferredLabs();
+        /******************Sesh*******************/
+        modal.style.display = "flex";
+    }
+
+
+    function closeModal() {
+        modal.style.display = "none";
+        document.getElementById("appointmentDate").value = "";
+        document.getElementById("note").value = "";
+    }
+    function confirmAppointment() {
+        const preferredLab = document.getElementById("preferredLab").value;
+        const bookingDate = document.getElementById("appointmentDate").value;
+        const note = document.getElementById("note").value;
+        if(!preferredLab) {
+            Toastify({
+                text: "Please select a preferred lab.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc2626",
+                stopOnFocus: true,
+            }).showToast();
+            return;
+        }
+        if (!bookingDate) {
+            Toastify({
+                text: "Please select a booking date.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc2626",
+                stopOnFocus: true,
+            }).showToast();
+
+            return;
+        }
+       // alert(`${selectedDoctor.id}`);
+        const bookingData = {
+            labId: preferredLab,
+            oderDate: bookingDate,
+            note: note,
+            labTestId: selectedDoctor.id
+        };
+
+        const token = localStorage.getItem('jwt');
+        fetch('/api/booking/lab/test/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify(bookingData)
+        })
+            .then(res => {
+                if (res.ok) return res.json();
+                throw new Error("Booking failed");
+            })
+            .then(data => {
+                Toastify({
+                    text: "Booking confirmed!",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#0baf0d",
+                    stopOnFocus: true,
+                }).showToast();
+                setTimeout(() => {
+                    window.location.href = '/lab/test.html';
+                }, 1000);
+            })
+            .catch(err => {
+                Toastify({
+                    text: "Booking failed! "+err.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#dc2626",
+                    stopOnFocus: true,
+                }).showToast();
+                setTimeout(() => {
+                    window.location.href = '/lab/test.html';
+                }, 1000);
+            });
+        closeModal();
+    }
+
+    // Close modal on outside click
+    window.onclick = function(e) {
+        if (e.target == modal) closeModal();
+    }
+
+    function renderPagination() {
+        const doctors = filterList();
+        const totalPages = Math.ceil(doctors.length / doctorsPerPage);
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        const half = Math.floor(maxVisiblePages / 2);
+        let startPage = Math.max(1, currentPage - half);
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage < maxVisiblePages - 1) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        pagination.innerHTML += `
+      <button class="nav-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&laquo;</button>
+    `;
+
+        for (let i = startPage; i <= endPage; i++) {
+            pagination.innerHTML += `
+        <button onclick="goToPage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>
+      `;
+        }
+
+        pagination.innerHTML += `
+      <button class="nav-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>&raquo;</button>
+    `;
+    }
+
+    function goToPage(page) {
+        const totalPages = Math.ceil(filterList().length / doctorsPerPage);
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+        displayDoctors();
+    }
+
+    function goToAllDoctors() {
+        document.getElementById("searchInput").value = "";
+        currentPage = 1;
+        displayDoctors();
+    }
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

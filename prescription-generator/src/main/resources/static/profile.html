@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Profile | AlphaHealth</title>
+    <link rel="stylesheet" href="/css/profile.css" />
+    <script src="/js/auth.js"></script>
+    <script src="/js/profile.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <style>
+        body {
+            display: flex;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f9fafb;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #ffffff;
+            border-right: 1px solid #e5e7eb;
+            padding: 30px 20px;
+            position: relative;
+        }
+
+        .sidebar h1 {
+            font-size: 22px;
+            color: #1d4ed8;
+            margin-bottom: 40px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 16px;
+            color: #374151;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            color: #1d4ed8;
+        }
+
+        .profile-container {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background-color: #f3f4f6;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .user-profile img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #4f46e5;
+            margin-right: 10px;
+        }
+
+        .user-profile span {
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .logout-btn {
+            background: #FFFF;
+            border: none;
+            font-size: 15px;
+            color: #686363;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .page-title {
+            font-size: 26px;
+            margin-bottom: 20px;
+            color: #111827;
+        }
+
+        .tab-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 16px;
+            background-color: #e5e7eb;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+
+        .profile-form {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+        }
+
+        .profile-form h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .form-subtitle {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        .photo-upload-section {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 25px;
+        }
+
+        .current-photo img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-right: 20px;
+            object-fit: cover;
+        }
+
+        .upload-box {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .save-btn {
+            padding: 10px 18px;
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .save-btn:hover {
+            background-color: #4338ca;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body onload="loadProfileData();">
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <h1>ALPHAHEALTH</h1>
+    <a href="/home.html" class="nav-item">🏠 Home</a>
+    <a class="nav-item" href="/doctor/appointment.html">🩺 Doctor Appointment</a>
+    <a class="nav-item" href="/lab/test.html">🧪 Lab Test Appointment</a>
+    <a class="nav-item" href="/notifications.html">🔔 Notifications</a>
+    <a class="nav-item" href="/history/history.html">📜 History</a>
+
+    <div class="profile-container">
+        <a href="/profile.html" class="user-profile" title="Go to My Profile">
+            <img alt="Profile" id="profile-pic-view" src="/images/logo.jpg">
+            <span id="first-name">User</span>
+        </a>
+        <button class="logout-btn" onclick="logout()" title="Logout">[-></button>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <h2 class="page-title">Profile</h2>
+
+    <div class="tab-bar">
+        <button class="tab active" onclick="showTab('details')">My details</button>
+        <button class="tab" onclick="showTab('password')">Password</button>
+    </div>
+
+    <!-- My Details Tab -->
+    <div id="details" class="tab-content active">
+        <form class="profile-form" id="profileForm">
+            <h3>Personal info</h3>
+            <p class="form-subtitle">Update your photo and personal details here.</p>
+
+            <div class="photo-upload-section">
+                <div class="current-photo">
+                    <img id="profilePreview" src="/images/logo.jpg" alt="Profile Photo" />
+                </div>
+                <label class="upload-box" for="photoUpload">
+                    <div class="upload-icon">⬆️</div>
+                    <p><span class="upload-link">Click to upload</span> or drag and drop</p>
+                    <small>JPG, PNG or GIF</small>
+                </label>
+                <input type="file" id="photoUpload" accept="image/*" style="display:none" onchange="previewPhoto(event)">
+            </div>
+
+            <div class="form-group">
+                <label for="fullName">Name</label>
+                <input type="text" id="fullName" placeholder="Enter your full name" />
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="example@domain.com" />
+            </div>
+
+            <div class="form-group">
+                <label for="dob">Date of Birth</label>
+                <input type="date" id="dob" />
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Gender</label>
+                <select id="gender">
+                    <option value="">Select gender</option>
+                    <option>Female</option>
+                    <option>Male</option>
+                    <option>Other</option>
+                </select>
+            </div>
+
+            <button type="submit" class="save-btn">Save Changes</button>
+        </form>
+    </div>
+
+    <!-- Password Tab -->
+    <div id="password" class="tab-content">
+        <form class="profile-form" id="passwordForm">
+            <h3>Password settings</h3>
+            <p class="form-subtitle">Update your password here.</p>
+
+            <div class="form-group">
+                <label for="currentPass">Current Password</label>
+                <input type="password" id="currentPass" placeholder="Enter current password" />
+            </div>
+
+            <div class="form-group">
+                <label for="newPass">New Password</label>
+                <input type="password" id="newPass" placeholder="Enter new password" />
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPass">Confirm Password</label>
+                <input type="password" id="confirmPass" placeholder="Re-enter new password" />
+            </div>
+
+            <button type="submit" class="save-btn">Update Password</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function showTab(tabId) {
+        document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(section => section.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    function previewPhoto(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById("profilePreview").src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    document.getElementById("profileForm").addEventListener("submit", async function (e) {
+        const token = localStorage.getItem('jwt');
+        if (!token) {
+            Toastify({
+                text: "You aren't logged in",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc2626",
+                stopOnFocus: true,
+            }).showToast();
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1000);
+            return;
+        }
+
+        const decodedToken = parseJwt(token);
+        if (!decodedToken || decodedToken.exp<Math.floor(Date.now() / 1000)) {
+            localStorage.removeItem('jwt');
+            Toastify({
+                text: "You are logged out by our system.Please login again.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc2626",
+                stopOnFocus: true,
+            }).showToast();
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1000);
+        }
+
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append("fullName", document.getElementById("fullName").value);
+        formData.append("email", document.getElementById("email").value);
+        formData.append("dob", document.getElementById("dob").value);
+        formData.append("gender", document.getElementById("gender").value);
+
+        const photoFile = document.getElementById("photoUpload").files[0];
+        if (photoFile) formData.append("photo", photoFile);
+
+        try {
+            const res = await fetch('/update/profile', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token },
+                body: formData
+            });
+
+            if (res.ok) {
+                Toastify({
+                    text: "Profile updated successfully!",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#0d9814",
+                    stopOnFocus: true,
+                }).showToast();
+                setTimeout(() => {
+                    window.location.href = '/profile.html';
+                }, 1000);
+            } else {
+                const error = await res.json();
+                alert("Error: " + (error.message || "Update failed"));
+            }
+        } catch (err) {
+            alert("Request error: " + err.message);
+        }
+    });
+
+    document.getElementById("passwordForm").addEventListener("submit", async function (e) {
+
+        const token = localStorage.getItem('jwt');
+        if (!token) {
+            Toastify({
+                text: "You aren't logged in",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc2626",
+                stopOnFocus: true,
+            }).showToast();
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1000);
+        }
+
+        const decodedToken = parseJwt(token);
+        if (!decodedToken || decodedToken.exp<Math.floor(Date.now() / 1000)) {
+            localStorage.removeItem('jwt');
+            Toastify({
+                text: "You are logged out by our system.Please login again.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc2626",
+                stopOnFocus: true,
+            }).showToast();
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1000);
+        }
+
+
+
+
+
+        e.preventDefault();
+
+        const current = document.getElementById("currentPass").value;
+        const newPass = document.getElementById("newPass").value;
+        const confirm = document.getElementById("confirmPass").value;
+
+        if (newPass !== confirm) {
+            Toastify({
+                text: "New password and confirmation do not match.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc2626",
+                stopOnFocus: true,
+            }).showToast();
+            return;
+        }
+
+        try {
+            const res = await fetch('/user/change-password', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    password: current,
+                    newPassword: newPass,
+                    confirmPassword: confirm
+                })
+            });
+
+            if (res.ok) {
+                Toastify({
+                    text: "Password changed successfully!",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#0d9814",
+                    stopOnFocus: true,
+                }).showToast();
+                setTimeout(() => {
+                    document.getElementById("passwordForm").reset();
+                    window.location.href = '/profile.html';
+                }, 1000);
+            } else {
+                const error = await res.text();
+                Toastify({
+                    text: "Error: " + (error || "Password change failed"),
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#ef0303",
+                    stopOnFocus: true,
+                }).showToast();
+            }
+        } catch (err) {
+            Toastify({
+                text: "Request error: " + err,
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#ef0303",
+                stopOnFocus: true,
+            }).showToast();
+        }
+    });
+</script>
+</body>
+</html>

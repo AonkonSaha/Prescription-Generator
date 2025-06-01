@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Registration</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+        }
+
+        .register-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .register-container {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .logo {
+            display: block;
+            margin: 0 auto 1.5rem;
+            width: 80px;
+            height: auto;
+            border-radius: 50%;
+        }
+
+        .register-title {
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: #111827;
+            font-weight: 600;
+        }
+
+        .register-subtext {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #6b7280;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #3b82f6;
+        }
+
+        .degree-input {
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 0.75rem;
+            background: #2563eb;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-register:hover {
+            background: #1d4ed8;
+        }
+
+        .login-redirect {
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.95rem;
+            color: #4b5563;
+        }
+
+        .login-redirect a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-redirect a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="register-wrapper">
+    <div class="register-container">
+        <img src="/images/logo.jpg" alt="Logo" class="logo" />
+        <div class="register-title">Create Your Account</div>
+        <div class="register-subtext">Fill in the details to get started</div>
+
+        <form onsubmit="event.preventDefault(); register();">
+            <div class="form-group">
+                <label for="fullName">Full Name*</label>
+                <input type="text" id="fullName" name="fullName" required />
+            </div>
+
+            <div class="form-group">
+                <label for="username">Mobile Number*</label>
+                <input type="text" id="username" name="username" required />
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email (optional)</label>
+                <input type="email" id="email" name="email" />
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Gender</label>
+                <select id="gender" name="gender">
+                    <option value="">Select gender</option>
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                    <option value="OTHER">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="dob">Date of Birth</label>
+                <input type="date" id="dob" name="dob" />
+            </div>
+
+            <div class="form-group">
+                <label for="designation">Designation*</label>
+                <input type="text" id="designation" name="designation" required />
+            </div>
+
+            <div class="form-group">
+                <label for="licenseNumber">License Number*</label>
+                <input type="text" id="licenseNumber" name="licenseNumber" required />
+            </div>
+
+            <div class="form-group">
+                <label>Degrees*</label>
+                <div id="degreeFieldsContainer">
+                    <input type="text" name="degrees" class="degree-input" placeholder="Enter a degree (e.g., MBBS)" required />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password*</label>
+                <input type="password" id="password" name="password" required />
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password*</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required />
+            </div>
+
+            <button type="submit" class="btn-register">Register</button>
+        </form>
+
+        <div class="login-redirect">
+            Already have an account? <a th:href="@{/login}" id="loginLink">Sign in</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    let formChanged = false;
+    const formElements = document.querySelectorAll("input, select");
+
+    function register() {
+        const name = document.getElementById("fullName").value.trim();
+        const mobileNumber = document.getElementById("username").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const gender = document.getElementById("gender").value;
+        const dateOfBirth = document.getElementById("dob").value;
+        const designation = document.getElementById("designation").value.trim();
+        const licenseNumber = document.getElementById("licenseNumber").value.trim();
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+
+        const degreeInputs = document.querySelectorAll('input[name="degrees"]');
+        const degrees = Array.from(degreeInputs)
+            .map(input => input.value.trim())
+            .filter(val => val !== "")
+            .filter((val, idx, self) => self.indexOf(val) === idx);
+
+        if (password !== confirmPassword) {
+            Toastify({ text: "Passwords do not match!", duration: 3000, backgroundColor: "#dc2626" }).showToast();
+            return;
+        }
+
+        if (!designation || !licenseNumber) {
+            Toastify({ text: "Please enter both designation and license number.", duration: 3000, backgroundColor: "#dc2626" }).showToast();
+            return;
+        }
+
+        const userData = {
+            name,
+            mobileNumber,
+            email,
+            gender,
+            dateOfBirth,
+            designation,
+            licenseNumber,
+            password,
+            degrees
+        };
+
+        fetch('/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        })
+            .then(response => {
+                if (!response.ok) return response.text().then(err => { throw new Error(err); });
+                return response.text();
+            })
+            .then(() => {
+                Toastify({ text: "Registration successful!", duration: 3000, backgroundColor: "#16a34a" }).showToast();
+                setTimeout(() => { window.location.href = '/'; }, 1000);
+            })
+            .catch(error => {
+                Toastify({ text: error.message, duration: 3000, backgroundColor: "#dc2626" }).showToast();
+            });
+    }
+
+    formElements.forEach(element => {
+        element.addEventListener("input", () => {
+            formChanged = true;
+        });
+    });
+
+    document.getElementById("loginLink").addEventListener("click", function (event) {
+        if (formChanged && !confirm("You have unsaved changes. Leave anyway?")) {
+            event.preventDefault();
+        }
+    });
+
+    // Degree input dynamic field logic
+    const degreeContainer = document.getElementById("degreeFieldsContainer");
+
+    function createNewDegreeField() {
+        const newInput = document.createElement("input");
+        newInput.type = "text";
+        newInput.name = "degrees";
+        newInput.placeholder = "Enter another degree";
+        newInput.className = "degree-input";
+
+        newInput.addEventListener("input", onDegreeInputChange);
+        degreeContainer.appendChild(newInput);
+    }
+
+    function onDegreeInputChange() {
+        const inputs = document.querySelectorAll('.degree-input');
+        const lastInput = inputs[inputs.length - 1];
+        if (lastInput.value.trim() !== "") {
+            createNewDegreeField();
+        }
+    }
+
+    document.querySelector('.degree-input').addEventListener("input", onDegreeInputChange);
+</script>
+
+</body>
+</html>

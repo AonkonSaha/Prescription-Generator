@@ -60,7 +60,6 @@ public class PrescriptionController {
     public ResponseEntity<?> getReport(){
        String contact= SecurityContextHolder.getContext().getAuthentication().getName();
        return ResponseEntity.ok(prescriptionMapper.toReportDTOS(prescriptionService.getReports(contact)));
-
     }
 
 

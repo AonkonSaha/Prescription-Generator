@@ -33,7 +33,7 @@ public class ValidationServiceImp implements ValidationService {
         if(!userValidationService.isValidUserPasswordLength(userDTO.getPassword())){
             return "Password must be at least 8 characters long!";
         }
-        if(!userValidationService.isValidEmailFormat(userDTO.getEmail())){
+        if(!userDTO.getEmail().isEmpty() && !userValidationService.isValidEmailFormat(userDTO.getEmail())){
 
             return "Email isn't valid!";
         }
