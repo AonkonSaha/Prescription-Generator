@@ -75,7 +75,6 @@ public class PrescriptionMapper {
         List<ReportDTO> reportDTOS=new ArrayList<>();
         for (Report report:reports) {
             ReportDTO reportDTO=new ReportDTO();
-            System.out.println("--------------------------> :"+report.getPrescriptions());
             reportDTO.setCount((long) report.getPrescriptions().size());
             reportDTO.setDay(report.getDay());
             reportDTOS.add(reportDTO);

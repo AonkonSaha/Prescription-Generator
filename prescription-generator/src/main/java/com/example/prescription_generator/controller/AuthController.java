@@ -10,6 +10,7 @@ import com.example.prescription_generator.model.mapper.UserMapper;
 import com.example.prescription_generator.service.UserService;
 import com.example.prescription_generator.service.UserValidationService;
 import com.example.prescription_generator.service.ValidationService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -40,14 +41,15 @@ public class AuthController {
         System.out.println("Contact: "+loginDTO.getContact()+" Password: "+loginDTO.getPassword());
         MUser user= userService.findUserByContact(loginDTO.getContact());
         if(user==null){
-            return ResponseEntity.badRequest().body("User doesn't exit..");
+            return ResponseEntity.badRequest().body("Mobile Number doesn't exit!");
         }
         if(!userValidationService.isExitUserPassword(loginDTO.getContact(),loginDTO.getPassword())){
-            return ResponseEntity.badRequest().body("Password is incorrect..");
+            return ResponseEntity.badRequest().body("Password is incorrect!");
         }
         return ResponseEntity.ok(Map.of("token",userService.authenticateUser(user,loginDTO)));
     }
     @PostMapping("/logout")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<?> logout(){
         HttpServletRequest request= RequestUtils.getCurrentHttpRequest();
         if(request==null){

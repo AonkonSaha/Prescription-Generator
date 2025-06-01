@@ -42,10 +42,9 @@ public class Prescription {
     @JoinColumn(name = "doctor_id")
     private DoctorProfile doctorProfile;
 
-    @ManyToOne(fetch = FetchType.EAGER,cascade=CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER,cascade={CascadeType.PERSIST,CascadeType.MERGE})
     @JoinColumn(name = "report_id")
     private Report report;
-
 
 
 }

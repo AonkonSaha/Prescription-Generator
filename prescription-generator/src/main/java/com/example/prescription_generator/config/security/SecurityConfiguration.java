@@ -19,14 +19,16 @@ public class SecurityConfiguration  {
     @Autowired
     JwtAuthFilter jwtAuthFilter;
     public static final String[] DOCTOR_URLS = {
-            "/api/prescription/**"
+            "/api/prescription/**",
+            "/api/auth/logout"
     };
     public static final String[] PUBLIC_URLS = {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/swagger-ui.html",
             "/h2-console/**",
-            "/api/auth/**",
+            "/api/auth/register",
+            "/api/auth/login"
     };
 
     @Bean

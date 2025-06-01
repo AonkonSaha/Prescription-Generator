@@ -8,18 +8,93 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Component
 public class UserValidationServiceImp implements UserValidationService {
     private final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
+
     @Override
-    public boolean isExitUserPassword(String contact, String password){
+    public boolean isEmptyUserName(String name) {
+        return name.isEmpty();
+    }
+    @Override
+    public boolean isExitUserByContact(String contact) {
+        return userRepo.existsByContact(contact);
+    }
+
+    @Override
+    public boolean isEmptyUserContact(String contact) {
+        return contact.isEmpty();
+    }
+
+    @Override
+    public boolean isValidUserContactLength(String contact) {
+        return contact.length() == 11;
+    }
+
+    @Override
+    public boolean isValidUserPasswordLength(String password) {
+        return password.length() >= 8;
+    }
+
+    @Override
+    public boolean isValidEmailFormat(String email) {
+        final String EMAIL_REGEX = "^(?!.*\\.{2})([A-Za-z0-9._%+-]+)@([A-Za-z0-9-]+\\.)+[A-Za-z]{2,}$";
+        final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
+        return EMAIL_PATTERN.matcher(email).matches();
+    }
+
+    @Override
+    public boolean isValidGender(String gender) {
+        Set<String> genders=Set.of("male","female","other");
+        return genders.contains(gender.toLowerCase());
+    }
+    @Override
+    public boolean isExitUserById(Long id) {
+        return userRepo.existsById(id);
+    }
+
+    @Override
+    public boolean isExitUserPassword(String contact,String password) {
         Optional<MUser> mUser=userRepo.findByContact(contact);
         if(mUser.isEmpty()){
             return false;
         }
         return passwordEncoder.matches(password,mUser.get().getPassword());
     }
+    @Override
+    public boolean isEqualNewPassAndConfirmPass(String newPass, String confirmPass){
+        return newPass.equals(confirmPass) ;
+    }
+
+    @Override
+    public boolean isEmptyDoctorDesignation(String designation) {
+        return designation.isEmpty();
+    }
+    @Override
+    public boolean isEmptyDoctorDegrees(Set<String> degrees) {
+        return degrees.isEmpty();
+    }
+    @Override
+    public boolean isEmptyLincenseNumber(String licenseNumber) {
+        return licenseNumber.isEmpty();
+    }
+
+    @Override
+    public boolean isValidUserContactDigit(String mobileNumber) {
+        for(int i=0;i<mobileNumber.length();i++){
+            if(mobileNumber.charAt(i) >= '0' && mobileNumber.charAt(i) <= '9'){
+                continue;
+            }
+            return false;
+        }
+        return true;
+    }
+
+
 }
+

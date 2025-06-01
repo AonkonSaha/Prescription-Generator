@@ -17,7 +17,7 @@ public class UserDTO {
     @NotNull
     private String name;
     @NotNull
-    private String contact;
+    private String mobileNumber;
     @NotNull
     private String gender;
     @NotNull
@@ -30,11 +30,14 @@ public class UserDTO {
     private String profilePictureUrl;
     private String address;
     private String profession;
+    @NotNull
     private String designation;
+    @NotNull
     private String licenseNumber;
     private Integer yearsOfExperience;
     private String hospitalOrClinicName;
     private String languagesSpoken;
+    @NotNull
     private Set<String> degrees=new HashSet<>();
     private Double rating;
     private Boolean availabilityStatus;

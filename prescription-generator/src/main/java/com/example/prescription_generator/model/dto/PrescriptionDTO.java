@@ -15,13 +15,21 @@ import java.util.Set;
 public class PrescriptionDTO {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @NotNull
     private LocalDate prescriptionDate;
+    @NotNull
     private String patientName;
+    @NotNull
     private Integer patientAge;
+    @NotNull
     private String patientGender;
+    @NotNull
     private Set<String> diagnosis=new HashSet<>();
+    @NotNull
     private Set<String> medicines=new HashSet<>();
+
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @NotNull
     private LocalDate nextVisitDate;
 
 

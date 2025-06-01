@@ -46,7 +46,13 @@ public class UserServiceImp implements UserService {
 
     @Override
     public void logoutUser(String contact) {
-
+        MUser user=findUserByContact(contact);
+        if(user==null){
+            return;
+        }
+        user.setIsActive(false);
+        saveUser(user);
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     @Override
