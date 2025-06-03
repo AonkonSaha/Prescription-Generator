@@ -37,7 +37,12 @@ public class Prescription {
     private Set<String> medicines=new HashSet<>();
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate nextVisitDate;
-
+    @Column(name="prescription_month")
+    @NotNull
+    private int month;
+    @Column(name="prescription_year")
+    @NotNull
+    private int year;
     @ManyToOne(fetch = FetchType.EAGER,cascade={CascadeType.PERSIST,CascadeType.MERGE})
     @JoinColumn(name = "doctor_id")
     private DoctorProfile doctorProfile;

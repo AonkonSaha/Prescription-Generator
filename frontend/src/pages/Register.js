@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Register() {
   const navigate = useNavigate();
@@ -16,7 +18,6 @@ function Register() {
     confirmPassword: "",
   });
 
-  const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -69,7 +70,7 @@ function Register() {
 
     if (!form.dateOfBirth) errors.dateOfBirth = "Date of Birth is required.";
     if (!form.password) errors.password = "Password is required.";
-    else if (form.password.length < 6) errors.password = "Minimum 6 characters.";
+    else if (form.password.length < 8) errors.password = "Minimum 8 characters.";
 
     if (!form.confirmPassword) errors.confirmPassword = "Confirm Password is required.";
     else if (form.password !== form.confirmPassword)
@@ -80,8 +81,10 @@ function Register() {
   };
 
   const handleRegister = async () => {
-    setError("");
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error("Please enter valid details in the form!");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -94,123 +97,105 @@ function Register() {
         }),
       });
 
-      const data = await response.json();
+      const data = await response.text();
       if (response.ok) {
-        alert("Registration successful! Redirecting to login...");
-        navigate("/login");
+        toast.success("Registration successful! Redirecting...");
+        setTimeout(() => navigate("/login"), 2000);
       } else {
-        setError(data.message || "Registration failed.");
+        toast.error(data || "Registration failed.");
       }
     } catch (err) {
-      setError("Server error. Please try again.");
+      toast.error(err.message || "Server error. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card} role="main" aria-label="Doctor registration form">
-        <h2 style={styles.title}>Doctor Registration</h2>
+    <>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar closeOnClick pauseOnHover />
+      <div style={styles.container}>
+        <div style={styles.card} role="main" aria-label="Doctor registration form">
+          <h2 style={styles.title}>Doctor Registration</h2>
 
-        <Input label="Full Name" name="name" value={form.name} onChange={handleChange} error={fieldErrors.name} />
-        <Input label="Mobile Number" name="mobileNumber" value={form.mobileNumber} onChange={handleChange} error={fieldErrors.mobileNumber} />
-        <Input label="Email" name="email" value={form.email} onChange={handleChange} error={fieldErrors.email} />
+          <Input label="Full Name" name="name" value={form.name} onChange={handleChange} error={fieldErrors.name} />
+          <Input label="Mobile Number" name="mobileNumber" value={form.mobileNumber} onChange={handleChange} error={fieldErrors.mobileNumber} />
+          <Input label="Email" name="email" value={form.email} onChange={handleChange} error={fieldErrors.email} />
 
-        <label htmlFor="gender" style={styles.label}>Gender *</label>
-        <select
-          id="gender"
-          name="gender"
-          value={form.gender}
-          onChange={handleChange}
-          style={styles.input}
-          disabled={loading}
-          aria-required="true"
-        >
-          <option value="">-- Select Gender --</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Others">Others</option>
-        </select>
-        {fieldErrors.gender && <p style={styles.error}>{fieldErrors.gender}</p>}
+          <label htmlFor="gender" style={styles.label}>Gender *</label>
+          <select id="gender" name="gender" value={form.gender} onChange={handleChange} style={styles.input} disabled={loading}>
+            <option value="">-- Select Gender --</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Others">Others</option>
+          </select>
+          {fieldErrors.gender && <p style={styles.error}>{fieldErrors.gender}</p>}
 
-        <Input label="Designation" name="designation" value={form.designation} onChange={handleChange} error={fieldErrors.designation} />
-        <Input label="License Number" name="licenseNumber" value={form.licenseNumber} onChange={handleChange} error={fieldErrors.licenseNumber} />
+          <Input label="Designation" name="designation" value={form.designation} onChange={handleChange} error={fieldErrors.designation} />
+          <Input label="License Number" name="licenseNumber" value={form.licenseNumber} onChange={handleChange} error={fieldErrors.licenseNumber} />
 
-        <label style={styles.label}>Degrees *</label>
-        {form.degrees.map((degree, idx) => (
-          <div key={idx} style={styles.degreeRow}>
-            <input
-              type="text"
-              placeholder={`Degree #${idx + 1}`}
-              value={degree}
-              onChange={(e) => handleDegreeChange(idx, e.target.value)}
-              style={styles.input}
-              disabled={loading}
-              aria-required="true"
-            />
-            {form.degrees.length > 1 && (
-              <button
-                type="button"
-                onClick={() => removeDegree(idx)}
-                style={styles.removeButton}
+          <label style={styles.label}>Degrees *</label>
+          {form.degrees.map((degree, idx) => (
+            <div key={idx} style={styles.degreeRow}>
+              <input
+                type="text"
+                placeholder={`Degree #${idx + 1}`}
+                value={degree}
+                onChange={(e) => handleDegreeChange(idx, e.target.value)}
+                style={styles.input}
                 disabled={loading}
-                aria-label={`Remove degree #${idx + 1}`}
-              >
-                &times;
-              </button>
-            )}
-          </div>
-        ))}
-        {fieldErrors.degrees && <p style={styles.error}>{fieldErrors.degrees}</p>}
-        {form.degrees.map((_, idx) =>
-          fieldErrors[`degrees_${idx}`] ? (
-            <p key={idx} style={styles.error}>{fieldErrors[`degrees_${idx}`]}</p>
-          ) : null
-        )}
+              />
+              {form.degrees.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeDegree(idx)}
+                  style={styles.removeButton}
+                  disabled={loading}
+                >
+                  &times;
+                </button>
+              )}
+            </div>
+          ))}
+          {fieldErrors.degrees && <p style={styles.error}>{fieldErrors.degrees}</p>}
+          {form.degrees.map((_, idx) =>
+            fieldErrors[`degrees_${idx}`] ? (
+              <p key={idx} style={styles.error}>{fieldErrors[`degrees_${idx}`]}</p>
+            ) : null
+          )}
 
-        <button
-          onClick={addDegree}
-          style={styles.addButton}
-          type="button"
-          disabled={loading}
-          aria-label="Add another degree"
-        >
-          + Add Another Degree
-        </button>
+          <button onClick={addDegree} style={styles.addButton} type="button" disabled={loading}>
+            + Add Another Degree
+          </button>
 
-        <Input label="Date of Birth" name="dateOfBirth" type="date" value={form.dateOfBirth} onChange={handleChange} error={fieldErrors.dateOfBirth} />
-        <Input label="Password" name="password" type="password" value={form.password} onChange={handleChange} error={fieldErrors.password} />
-        <Input label="Confirm Password" name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} error={fieldErrors.confirmPassword} />
+          <Input label="Date of Birth" name="dateOfBirth" type="date" value={form.dateOfBirth} onChange={handleChange} error={fieldErrors.dateOfBirth} />
+          <Input label="Password" name="password" type="password" value={form.password} onChange={handleChange} error={fieldErrors.password} />
+          <Input label="Confirm Password" name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} error={fieldErrors.confirmPassword} />
 
-        {error && <p style={styles.error}>{error}</p>}
+          <button
+            onClick={handleRegister}
+            style={{ ...styles.button, ...(loading ? styles.buttonDisabled : {}) }}
+            disabled={loading}
+            type="button"
+          >
+            {loading ? "Registering..." : "Register"}
+          </button>
 
-        <button
-          onClick={handleRegister}
-          style={{ ...styles.button, ...(loading ? styles.buttonDisabled : {}) }}
-          disabled={loading}
-          aria-busy={loading}
-          type="button"
-        >
-          {loading ? "Registering..." : "Register"}
-        </button>
-
-        <p style={styles.registerText}>
-          Already have an account?{" "}
-          <span style={styles.registerLink} onClick={() => navigate("/login")}>
-            Login here
-          </span>
-        </p>
+          <p style={styles.registerText}>
+            Already have an account?{" "}
+            <span style={styles.registerLink} onClick={() => navigate("/login")}>
+              Login here
+            </span>
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
 const Input = ({ label, name, value, onChange, error, type = "text" }) => (
   <>
-    <label htmlFor={name} style={styles.label}>
-      {label} *
-    </label>
+    <label htmlFor={name} style={styles.label}>{label} *</label>
     <input
       id={name}
       name={name}
@@ -218,7 +203,6 @@ const Input = ({ label, name, value, onChange, error, type = "text" }) => (
       value={value}
       onChange={onChange}
       style={styles.input}
-      aria-required="true"
     />
     {error && <p style={styles.error}>{error}</p>}
   </>
@@ -227,8 +211,7 @@ const Input = ({ label, name, value, onChange, error, type = "text" }) => (
 const styles = {
   container: {
     height: "100vh",
-    background:
-      "linear-gradient(135deg,rgb(249, 250, 252) 0%,rgb(247, 246, 248) 100%)",
+    background: "linear-gradient(135deg,rgb(249, 250, 252) 0%,rgb(247, 246, 248) 100%)",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",

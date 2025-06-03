@@ -6,8 +6,12 @@ const Reports = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const reportsPerPage = 4;
+
   const token = localStorage.getItem("token");
-  const baseURL = process.env.REACT_APP_BACK_END_BASE_URL || "";
+  const baseURL = process.env.REACT_APP_BACK_END_BASE_URL || "http://localhost:8080";
 
   useEffect(() => {
     setLoading(true);
@@ -20,12 +24,27 @@ const Reports = () => {
       .then((response) => {
         setReports(response.data);
         setLoading(false);
+        setCurrentPage(1); // Reset to first page on new data load
       })
       .catch(() => {
         setError("Failed to load reports.");
         setLoading(false);
       });
-  }, [token]);
+  }, [token, baseURL]);
+
+  // Pagination calculations
+  const indexOfLastReport = currentPage * reportsPerPage;
+  const indexOfFirstReport = indexOfLastReport - reportsPerPage;
+  const currentReports = reports.slice(indexOfFirstReport, indexOfLastReport);
+  const totalPages = Math.ceil(reports.length / reportsPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
 
   return (
     <>
@@ -42,32 +61,63 @@ const Reports = () => {
             No report data available.
           </p>
         ) : (
-          <div style={styles.tableWrapper}>
-            <table style={styles.table}>
-              <thead>
-                <tr style={styles.theadRow}>
-                  <th style={styles.th}>Date</th>
-                  <th style={styles.th}>Prescription Count</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reports.map((report, index) => (
-                  <tr
-                    key={index}
-                    style={{
-                      ...styles.tr,
-                      ...(index % 2 === 0
-                        ? styles.tbodyRowEven
-                        : styles.tbodyRowOdd),
-                    }}
-                  >
-                    <td style={styles.td}>{report.day}</td>
-                    <td style={styles.td}>{report.count}</td>
+          <>
+            <div style={styles.tableWrapper}>
+              <table style={styles.table}>
+                <thead>
+                  <tr style={styles.theadRow}>
+                    <th style={styles.th}>Date</th>
+                    <th style={styles.th}>Prescription Count</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {currentReports.map((report, index) => (
+                    <tr
+                      key={index}
+                      style={{
+                        ...styles.tr,
+                        ...(index % 2 === 0
+                          ? styles.tbodyRowEven
+                          : styles.tbodyRowOdd),
+                      }}
+                    >
+                      <td style={styles.td}>{report.day}</td>
+                      <td style={styles.td}>{report.count}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Controls */}
+            <div style={styles.paginationContainer}>
+              <button
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1}
+                style={{
+                  ...styles.paginationButton,
+                  ...(currentPage === 1 && styles.disabledButton),
+                }}
+              >
+                Previous
+              </button>
+
+              <span style={styles.pageIndicator}>
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                style={{
+                  ...styles.paginationButton,
+                  ...(currentPage === totalPages && styles.disabledButton),
+                }}
+              >
+                Next
+              </button>
+            </div>
+          </>
         )}
       </div>
     </>
@@ -127,6 +177,33 @@ const styles = {
   },
   tbodyRowOdd: {
     backgroundColor: "#fff",
+  },
+  paginationContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: "20px",
+    gap: "15px",
+  },
+  paginationButton: {
+    padding: "8px 16px",
+    fontSize: "14px",
+    fontWeight: "600",
+    borderRadius: "6px",
+    border: "none",
+    cursor: "pointer",
+    backgroundColor: "#2c3e50",
+    color: "#fff",
+    transition: "opacity 0.3s ease",
+  },
+  disabledButton: {
+    opacity: 0.5,
+    cursor: "not-allowed",
+  },
+  pageIndicator: {
+    fontSize: "14px",
+    fontWeight: "600",
+    color: "#2c3e50",
   },
 };
 

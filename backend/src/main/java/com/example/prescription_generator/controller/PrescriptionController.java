@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -56,6 +57,20 @@ public class PrescriptionController {
         return ResponseEntity.ok(Map.of("prescriptions",prescriptionMapper.toPrescriptionDTOS(
                 prescriptionService.getPrescriptions(contact))));
     }
+    @GetMapping("/get/all/recent/month")
+    public ResponseEntity<Map<String, List<PrescriptionDTO>>> getRecentMonthPrescription(){
+        String contact= SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(Map.of("prescriptions",prescriptionMapper.toPrescriptionDTOS(
+                prescriptionService.getPrescriptionsFromRecentMonth(contact))));
+    }
+
+    @GetMapping("/get/all/{startDate}/{endDate}")
+    public ResponseEntity<Map<String, List<PrescriptionDTO>>> getDateRangePrescription(
+            @PathVariable("startDate") LocalDate startDate, @PathVariable("endDate") LocalDate endDate){
+        String contact= SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(Map.of("prescriptions",prescriptionMapper.toPrescriptionDTOS(
+                prescriptionService.getPrescriptionsFromDateRange(startDate,endDate,contact))));
+    }
 
     @GetMapping("/get/{id}")
     public ResponseEntity<?> getPrescription(@PathVariable("id") Long id){
@@ -67,6 +82,4 @@ public class PrescriptionController {
        String contact= SecurityContextHolder.getContext().getAuthentication().getName();
        return ResponseEntity.ok(prescriptionMapper.toReportDTOS(prescriptionService.getReports(contact)));
     }
-
-
 }

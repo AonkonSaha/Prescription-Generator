@@ -34,6 +34,8 @@ public class PrescriptionMapper {
                 .medicines(prescriptionDTO.getMedicines())
                 .nextVisitDate(prescriptionDTO.getNextVisitDate())
                 .doctorProfile(doctorProfile)
+                .month(prescriptionDTO.getPrescriptionDate().getMonthValue())
+                .year(prescriptionDTO.getPrescriptionDate().getYear())
                 .build();
         doctorProfile.getPrescriptions().add(prescription);
         Report report;

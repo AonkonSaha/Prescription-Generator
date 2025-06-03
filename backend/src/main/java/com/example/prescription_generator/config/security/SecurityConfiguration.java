@@ -58,12 +58,10 @@ public class SecurityConfiguration  {
         configuration.setAllowedOriginPatterns(List.of(
                 "*"
 
-        )); // Allow frontend origin
-
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Allow HTTP methods
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type")); // Allow headers
-        configuration.setAllowCredentials(true); // Allow credentials
-
+        ));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

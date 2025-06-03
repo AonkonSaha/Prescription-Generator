@@ -5,11 +5,31 @@ function Navbar() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const baseURL = process.env.REACT_APP_BACK_END_BASE_URL || "http://localhost:8080";
+  const token = localStorage.getItem("token");
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
+const handleLogout = async () => {
+
+  try {
+    const response = await fetch(`${baseURL}/api/auth/logout`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      localStorage.removeItem("token");
+      navigate("/login");
+    } else {
+      console.error("Logout failed:", await response.text());
+    }
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+};
+
 
   return (
     <nav style={{ ...styles.navbar, ...(menuOpen ? styles.expandedNavbar : {}) }}>
@@ -20,6 +40,7 @@ function Navbar() {
         <Link to="/prescription/generate" style={styles.link} onClick={() => setMenuOpen(false)}>Create</Link>
         <Link to="/prescriptions" style={styles.link} onClick={() => setMenuOpen(false)}>Prescriptions</Link>
         <Link to="/reports" style={styles.link} onClick={() => setMenuOpen(false)}>Reports</Link>
+        <Link to="/covid/statistics" style={styles.link} onClick={() => setMenuOpen(false)}>ThirdPartyApi</Link>
       </div>
 
       <div style={styles.profileContainer}>

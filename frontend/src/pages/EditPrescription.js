@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../navbar-footer/Navbar";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function EditPrescription() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const baseURL = process.env.REACT_APP_BACK_END_BASE_URL || "";
+  const baseURL = process.env.REACT_APP_BACK_END_BASE_URL || "http://localhost:8080";
   const token = localStorage.getItem("token");
   const todayString = new Date().toISOString().split("T")[0];
 
@@ -35,7 +37,6 @@ function EditPrescription() {
         if (!res.ok) throw new Error("Failed to fetch prescription");
         const data = await res.json();
 
-        // Pre-fill form
         setForm({
           prescriptionDate: data.prescriptionDate || todayString,
           patientName: data.patientName || "",
@@ -54,7 +55,6 @@ function EditPrescription() {
     fetchPrescription();
   }, [id, baseURL, token, todayString]);
 
-  // Input handlers (same as your PrescriptionGenerator)
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -92,20 +92,11 @@ function EditPrescription() {
     setForm((prev) => ({ ...prev, medicines: newMedicines }));
   };
 
-  // Validation same as PrescriptionGenerator
   const validate = () => {
     const newErrors = {};
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-//   if (!form.prescriptionDate) {
-//       newErrors.prescriptionDate = "Prescription Date is required";
-//     } else {
-//       const prescDate = new Date(form.prescriptionDate);
-//       prescDate.setHours(0, 0, 0, 0);
-//       if (prescDate.getTime() !== today.getTime()) {
-//         newErrors.prescriptionDate = "Prescription Date must be today's date";
-//       }
-//     }
+
     if (!form.patientName.trim()) {
       newErrors.patientName = "Patient Name is required";
     }
@@ -155,7 +146,6 @@ function EditPrescription() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Submit updated prescription
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -172,14 +162,14 @@ function EditPrescription() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        alert("Failed to update prescription: " + (errorData.message || response.statusText));
+        toast.error("Failed to update: " + (errorData.message || response.statusText));
         return;
       }
 
-      alert("Prescription updated successfully!");
-      navigate("/prescriptions");
+      toast.success("Prescription updated successfully!");
+      setTimeout(() => navigate("/prescriptions"), 1500);
     } catch (error) {
-      alert("Network error: " + error.message);
+      toast.error("Network error: " + error.message);
     }
   };
 
@@ -206,6 +196,7 @@ function EditPrescription() {
   return (
     <>
       <Navbar />
+      <ToastContainer position="top-right" autoClose={3000} />
       <div style={styles.container}>
         <h2>Edit Prescription</h2>
         <form onSubmit={handleSubmit} style={styles.form}>

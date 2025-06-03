@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import { Navigate } from 'react-router-dom';
 import Register from './pages/Register';
 import EditPrescription from './pages/EditPrescription';
+import CovidStats from './pages/CovidStats';
 function App() {
   return (
       <Routes>
@@ -21,7 +22,10 @@ function App() {
         <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
         <Route path="/prescription/edit/:id" element={<EditPrescription />} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/covid/statistics" element={<ProtectedRoute><CovidStats/></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/home" />} />
+        
+
       </Routes>
   );
 }

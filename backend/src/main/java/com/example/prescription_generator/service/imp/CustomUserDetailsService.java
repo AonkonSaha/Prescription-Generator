@@ -22,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         public UserDetails loadUserByUsername(String contact) throws UsernameNotFoundException {
             Optional<MUser> user = userRepo.findByContact(contact);
             if(user.isEmpty()) {
-                throw new UsernameNotFoundException("User not---------- found...");
+                throw new UsernameNotFoundException("User not found...");
             }
             Set<SimpleGrantedAuthority> authorities = new HashSet<>();
             authorities.add(new SimpleGrantedAuthority("ROLE_DOCTOR"));

@@ -9,13 +9,16 @@ function PrescriptionList() {
   const [error, setError] = useState(null);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const baseURL = process.env.REACT_APP_BACK_END_BASE_URL || "";
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const prescriptionsPerPage = 10;
+
+  const baseURL = process.env.REACT_APP_BACK_END_BASE_URL || "http://localhost:8080";
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
   useEffect(() => {
-
-    fetch(`${baseURL}/api/prescription/get/all`, {
+    fetch(`${baseURL}/api/prescription/get/all/recent/month`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -32,47 +35,96 @@ function PrescriptionList() {
         setPrescriptions(data.prescriptions);
         setFilteredPrescriptions(data.prescriptions);
         setLoading(false);
+        setCurrentPage(1); // reset page on new data
       })
       .catch((err) => {
         setError(err.message);
         setLoading(false);
       });
-  }, [baseURL]);
+  }, [baseURL, token]);
 
   // Filter prescriptions when startDate or endDate changes
   useEffect(() => {
-    if (!startDate && !endDate) {
-      setFilteredPrescriptions(prescriptions);
-      return;
+    if (startDate && endDate) {
+      setLoading(true);
+      fetch(`${baseURL}/api/prescription/get/all/${startDate}/${endDate}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Failed to fetch prescriptions for date range");
+          }
+          return res.json();
+        })
+        .then((data) => {
+          setPrescriptions(data.prescriptions);
+          setFilteredPrescriptions(data.prescriptions);
+          setLoading(false);
+          setCurrentPage(1); // reset page on new data
+        })
+        .catch((err) => {
+          setError(err.message);
+          setLoading(false);
+        });
+    } else {
+      setLoading(true);
+      fetch(`${baseURL}/api/prescription/get/all/recent/month`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Failed to fetch recent prescriptions");
+          }
+          return res.json();
+        })
+        .then((data) => {
+          setPrescriptions(data.prescriptions);
+          setFilteredPrescriptions(data.prescriptions);
+          setLoading(false);
+          setCurrentPage(1); // reset page on new data
+        })
+        .catch((err) => {
+          setError(err.message);
+          setLoading(false);
+        });
     }
+  }, [startDate, endDate, baseURL, token]);
 
-    const filtered = prescriptions.filter((p) => {
-      const pDate = new Date(p.prescriptionDate);
-      const start = startDate ? new Date(startDate) : null;
-      const end = endDate ? new Date(endDate) : null;
+  // Pagination calculations
+  const indexOfLastPrescription = currentPage * prescriptionsPerPage;
+  const indexOfFirstPrescription = indexOfLastPrescription - prescriptionsPerPage;
+  const currentPrescriptions = filteredPrescriptions.slice(
+    indexOfFirstPrescription,
+    indexOfLastPrescription
+  );
+  const totalPages = Math.ceil(filteredPrescriptions.length / prescriptionsPerPage);
 
-      if (start && end) {
-        return pDate >= start && pDate <= end;
-      } else if (start) {
-        return pDate >= start;
-      } else if (end) {
-        return pDate <= end;
-      }
-      return true;
-    });
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
-    setFilteredPrescriptions(filtered);
-  }, [startDate, endDate, prescriptions]);
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   const handleUpdate = (id) => {
-    
-       navigate(`/prescription/edit/${id}`);
-
+    navigate(`/prescription/edit/${id}`);
   };
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this prescription?")) {
-
       fetch(`${baseURL}/api/prescription/delete/${id}`, {
         method: "DELETE",
         headers: {
@@ -83,7 +135,6 @@ function PrescriptionList() {
           if (!res.ok) {
             throw new Error("Failed to delete prescription");
           }
-          // Remove from both lists
           setPrescriptions((prev) => prev.filter((p) => p.id !== id));
           setFilteredPrescriptions((prev) => prev.filter((p) => p.id !== id));
         })
@@ -159,26 +210,20 @@ function PrescriptionList() {
                 </tr>
               </thead>
               <tbody>
-                {filteredPrescriptions.map((prescription, index) => (
+                {currentPrescriptions.map((prescription, index) => (
                   <tr
                     key={index}
                     style={{
                       ...styles.tr,
-                      ...(index % 2 === 0
-                        ? styles.tbodyRowEven
-                        : styles.tbodyRowOdd),
+                      ...(index % 2 === 0 ? styles.tbodyRowEven : styles.tbodyRowOdd),
                     }}
                   >
                     <td style={styles.td}>{prescription.prescriptionDate}</td>
                     <td style={styles.td}>{prescription.patientName}</td>
                     <td style={styles.td}>{prescription.patientAge}</td>
                     <td style={styles.td}>{prescription.patientGender}</td>
-                    <td style={styles.td}>
-                      {prescription.diagnosis?.join(", ")}
-                    </td>
-                    <td style={styles.td}>
-                      {prescription.medicines?.join(", ")}
-                    </td>
+                    <td style={styles.td}>{prescription.diagnosis?.join(", ")}</td>
+                    <td style={styles.td}>{prescription.medicines?.join(", ")}</td>
                     <td style={styles.td}>{prescription.nextVisitDate}</td>
                     <td style={styles.td}>
                       <div style={styles.actionButtons}>
@@ -200,6 +245,35 @@ function PrescriptionList() {
                 ))}
               </tbody>
             </table>
+
+            {/* Pagination Controls */}
+            <div style={styles.paginationContainer}>
+              <button
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1}
+                style={{
+                  ...styles.paginationButton,
+                  ...(currentPage === 1 && styles.disabledButton),
+                }}
+              >
+                Previous
+              </button>
+
+              <span style={styles.pageIndicator}>
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                style={{
+                  ...styles.paginationButton,
+                  ...(currentPage === totalPages && styles.disabledButton),
+                }}
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -325,6 +399,33 @@ const styles = {
   deleteBtn: {
     backgroundColor: "#e74c3c",
     color: "#fff",
+  },
+  paginationContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: "20px",
+    gap: "15px",
+  },
+  paginationButton: {
+    padding: "8px 16px",
+    fontSize: "14px",
+    fontWeight: "600",
+    borderRadius: "6px",
+    border: "none",
+    cursor: "pointer",
+    backgroundColor: "#2c3e50",
+    color: "#fff",
+    transition: "opacity 0.3s ease",
+  },
+  disabledButton: {
+    opacity: 0.5,
+    cursor: "not-allowed",
+  },
+  pageIndicator: {
+    fontSize: "14px",
+    fontWeight: "600",
+    color: "#2c3e50",
   },
 };
 

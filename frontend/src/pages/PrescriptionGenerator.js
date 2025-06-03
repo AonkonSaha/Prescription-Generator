@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../navbar-footer/Navbar";
+// import Navbar from "../navbar-footer/Navbar";
+import Navbar from "./../"
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function PrescriptionGenerator() {
   const todayString = new Date().toISOString().split("T")[0];
-  const baseURL = process.env.REACT_APP_BACK_END_BASE_URL || "";
-  const token=localStorage.getItem("token");
+  const baseURL = process.env.REACT_APP_BACK_END_BASE_URL || "http://localhost:8080";
+  const token = localStorage.getItem("token");
+
   const [form, setForm] = useState({
     prescriptionDate: todayString,
     patientName: "",
@@ -61,16 +65,6 @@ function PrescriptionGenerator() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // if (!form.prescriptionDate) {
-    //   newErrors.prescriptionDate = "Prescription Date is required";
-    // } else {
-    //   const prescDate = new Date(form.prescriptionDate);
-    //   prescDate.setHours(0, 0, 0, 0);
-    //   if (prescDate.getTime() !== today.getTime()) {
-    //     newErrors.prescriptionDate = "Prescription Date must be today's date";
-    //   }
-    // }
-
     if (!form.patientName.trim()) {
       newErrors.patientName = "Patient Name is required";
     }
@@ -81,9 +75,9 @@ function PrescriptionGenerator() {
       newErrors.patientAge = "Patient Age must be a number";
     } else if (
       parseInt(form.patientAge.trim()) <= 0 ||
-      parseInt(form.patientAge.trim()) > 120
+      parseInt(form.patientAge.trim()) > 200
     ) {
-      newErrors.patientAge = "Patient Age must be between 1 and 120";
+      newErrors.patientAge = "Patient Age must be between 1 and 200";
     }
 
     if (!form.patientGender) {
@@ -136,11 +130,11 @@ function PrescriptionGenerator() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        alert("Failed to create prescription: " + (errorData.message || response.statusText));
+        toast.error("Failed to create prescription: " + (errorData.message || response.statusText));
         return;
       }
 
-      alert("Prescription created successfully!");
+      toast.success("Prescription created successfully!");
 
       setForm({
         prescriptionDate: todayString,
@@ -152,19 +146,18 @@ function PrescriptionGenerator() {
         nextVisitDate: "",
       });
       setErrors({});
-      // navigate("/prescriptions");
     } catch (error) {
-      alert("Network error: " + error.message);
+      toast.error("Network error: " + error.message);
     }
   };
 
   return (
     <>
-      <Navbar />
+      <NavBar/>
+      <ToastContainer position="top-right" autoClose={3000} />
       <div style={styles.container}>
         <h2>Create Prescription</h2>
         <form onSubmit={handleSubmit} style={styles.form}>
-          {/* Prescription Date */}
           <div style={styles.formGroup}>
             <label>Prescription Date *</label>
             <input
@@ -177,7 +170,6 @@ function PrescriptionGenerator() {
             {errors.prescriptionDate && <span style={styles.error}>{errors.prescriptionDate}</span>}
           </div>
 
-          {/* Patient Name */}
           <div style={styles.formGroup}>
             <label>Patient Name *</label>
             <input
@@ -190,7 +182,6 @@ function PrescriptionGenerator() {
             {errors.patientName && <span style={styles.error}>{errors.patientName}</span>}
           </div>
 
-          {/* Patient Age */}
           <div style={styles.formGroup}>
             <label>Patient Age *</label>
             <input
@@ -203,7 +194,6 @@ function PrescriptionGenerator() {
             {errors.patientAge && <span style={styles.error}>{errors.patientAge}</span>}
           </div>
 
-          {/* Gender */}
           <div style={styles.formGroup}>
             <label>Patient Gender *</label>
             <select
@@ -220,7 +210,6 @@ function PrescriptionGenerator() {
             {errors.patientGender && <span style={styles.error}>{errors.patientGender}</span>}
           </div>
 
-          {/* Diagnosis */}
           <div style={styles.formGroup}>
             <label>Diagnosis *</label>
             {form.diagnosis.map((diag, idx) => (
@@ -254,7 +243,6 @@ function PrescriptionGenerator() {
             </button>
           </div>
 
-          {/* Medicines */}
           <div style={styles.formGroup}>
             <label>Medicines *</label>
             {form.medicines.map((med, idx) => (
@@ -288,7 +276,6 @@ function PrescriptionGenerator() {
             </button>
           </div>
 
-          {/* Next Visit Date */}
           <div style={styles.formGroup}>
             <label>Next Visit Date *</label>
             <input

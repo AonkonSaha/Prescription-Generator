@@ -9,6 +9,7 @@ import com.example.prescription_generator.service.PrescriptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,5 +58,18 @@ public class PrescriptionServiceImp implements PrescriptionService {
             return null;
         }
         return prescription.get();
+    }
+
+    @Override
+    public List<Prescription> getPrescriptionsFromRecentMonth(String contact) {
+        LocalDate today = LocalDate.now();
+        int month = today.getMonthValue();
+        int year = today.getYear();
+        return prescriptionRepo.findAllByRecentMonth(month, year, contact);
+    }
+
+    @Override
+    public List<Prescription> getPrescriptionsFromDateRange(LocalDate startDate, LocalDate endDate, String contact) {
+        return prescriptionRepo.findAllByDateRange(startDate, endDate, contact);
     }
 }

@@ -1,22 +1,24 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Login() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ mobileNumber: "", password: "" });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const baseURL = process.env.REACT_APP_BACK_END_BASE_URL || "";
+  const baseURL = process.env.REACT_APP_BACK_END_BASE_URL || "http://localhost:8080";
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleLogin = async () => {
-    setError("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     if (!form.mobileNumber.trim() || !form.password.trim()) {
-      setError("Please enter both mobile number and password.");
+      toast.error("Please enter both mobile number and password.");
       return;
     }
 
@@ -34,81 +36,84 @@ function Login() {
 
       if (response.ok && data.token) {
         localStorage.setItem("token", data.token);
-        navigate("/home");
+        toast.success("Login successful! Redirecting...");
+        setTimeout(() => navigate("/home"), 1500);
       } else {
-        setError(data.message || "Invalid mobile number or password.");
+        toast.error(data.message || "Invalid mobile number or password.");
       }
     } catch (err) {
-      setError("Login failed. Please try again.");
+      toast.error("Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card} role="main" aria-label="Login form">
-        <h2 style={styles.title}>Doctor Login</h2>
+    <>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar closeOnClick pauseOnHover />
+      <div style={styles.container}>
+        <div style={styles.card} role="main" aria-label="Login form">
+          <h2 style={styles.title}>Doctor Login</h2>
 
-        <label htmlFor="mobileNumber" style={styles.label}>
-          Mobile Number
-        </label>
-        <input
-          id="mobileNumber"
-          name="mobileNumber"
-          type="text"
-          placeholder="Enter your mobile number"
-          value={form.mobileNumber}
-          onChange={handleChange}
-          style={styles.input}
-          autoComplete="tel"
-          disabled={loading}
-          aria-required="true"
-        />
+          <form onSubmit={handleSubmit}>
+            <label htmlFor="mobileNumber" style={styles.label}>
+              Mobile Number
+            </label>
+            <input
+              id="mobileNumber"
+              name="mobileNumber"
+              type="text"
+              placeholder="Enter your mobile number"
+              value={form.mobileNumber}
+              onChange={handleChange}
+              style={styles.input}
+              autoComplete="tel"
+              disabled={loading}
+              aria-required="true"
+            />
 
-        <label htmlFor="password" style={styles.label}>
-          Password
-        </label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          placeholder="Enter your password"
-          value={form.password}
-          onChange={handleChange}
-          style={styles.input}
-          autoComplete="current-password"
-          disabled={loading}
-          aria-required="true"
-        />
+            <label htmlFor="password" style={styles.label}>
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              value={form.password}
+              onChange={handleChange}
+              style={styles.input}
+              autoComplete="current-password"
+              disabled={loading}
+              aria-required="true"
+            />
 
-        {error && <p style={styles.error}>{error}</p>}
+            <button
+              style={{ ...styles.button, ...(loading ? styles.buttonDisabled : {}) }}
+              disabled={loading}
+              aria-busy={loading}
+              type="submit"
+            >
+              {loading ? "Logging in..." : "Login as Doctor"}
+            </button>
+          </form>
 
-        <button
-          onClick={handleLogin}
-          style={{ ...styles.button, ...(loading ? styles.buttonDisabled : {}) }}
-          disabled={loading}
-          aria-busy={loading}
-          type="button"
-        >
-          {loading ? "Logging in..." : "Login as Doctor"}
-        </button>
-
-        <p style={styles.registerText}>
-          Don't have an account?{" "}
-          <Link to="/register" style={styles.registerLink}>
-            Register here
-          </Link>
-        </p>
+          <p style={styles.registerText}>
+            Don't have an account?{" "}
+            <Link to="/register" style={styles.registerLink}>
+              Register here
+            </Link>
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
 const styles = {
   container: {
     height: "100vh",
-    backgroundColor: "#fff",  // changed to white
+    backgroundColor: "#fff",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -116,10 +121,10 @@ const styles = {
     padding: "20px",
   },
   card: {
-    backgroundColor: "#f9f9f9", // subtle off-white for contrast
+    backgroundColor: "#f9f9f9",
     padding: "40px 50px",
     borderRadius: "12px",
-    boxShadow: "0 8px 20px rgba(0,0,0,0.1)", // softer shadow for light bg
+    boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
     width: "360px",
     maxWidth: "100%",
     textAlign: "left",
@@ -146,12 +151,6 @@ const styles = {
     outline: "none",
     transition: "border-color 0.3s",
     boxSizing: "border-box",
-  },
-  error: {
-    color: "#e74c3c",
-    marginBottom: "20px",
-    fontWeight: "600",
-    fontSize: "14px",
   },
   button: {
     width: "100%",

@@ -5,6 +5,7 @@ import com.example.prescription_generator.model.dto.ReportDTO;
 import com.example.prescription_generator.model.entity.Prescription;
 import com.example.prescription_generator.model.entity.Report;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface PrescriptionService {
@@ -19,4 +20,8 @@ public interface PrescriptionService {
     List<Report> getReports(String contact);
 
     Prescription getPrescriptionsById(Long id);
+
+    List<Prescription> getPrescriptionsFromRecentMonth(String contact);
+
+    List<Prescription> getPrescriptionsFromDateRange(LocalDate startDate, LocalDate endDate, String contact);
 }
