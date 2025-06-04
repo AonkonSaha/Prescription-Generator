@@ -64,6 +64,15 @@ function PrescriptionGenerator() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    // if (!form.prescriptionDate) {
+    //   newErrors.prescriptionDate = "Prescription Date is required";
+    // } else {
+    //   const prescDate = new Date(form.prescriptionDate);
+    //   prescDate.setHours(0, 0, 0, 0);
+    //   if (prescDate.getTime() !== today.getTime()) {
+    //     newErrors.prescriptionDate = "Prescription Date must be today's date";
+    //   }
+    // }
     if (!form.patientName.trim()) {
       newErrors.patientName = "Patient Name is required";
     }
