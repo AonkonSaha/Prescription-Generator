@@ -120,8 +120,7 @@ Once both frontend and backend are running:
 
 ## Important
 - Since the backend uses an in-memory H2 database, all data is lost when the backend server stops. If you restart the backend without logging out from the frontend, your stored JWT token will become invalid. In this case, please clear the token from your browser’s local storage manually.
-
-If you attempt to logout with an invalid token (because the user no longer exists in the backend), the backend will safely ignore the request. This behavior prevents errors but requires you to clear tokens to avoid inconsistencies.
+- If you attempt to logout with an invalid token (because the user no longer exists in the backend), the backend will safely ignore the request. This behavior prevents errors but requires you to clear tokens to avoid inconsistencies.
 ---
 
 Enjoy coding and enhancing the Prescription Generator! 🎉
