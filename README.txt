@@ -92,6 +92,8 @@ if (!prescriptionValidationService.isValidPrescriptionDate(prescriptionDTO.getPr
 
 ---
 ## 🔍 Feature Details
+Prescription Create Page:
+-Complete all required fields to generate a new prescription efficiently 
 
 Prescription List Page:
 - Initially fetches prescriptions for the current month in ascending order by date
@@ -99,9 +101,10 @@ Prescription List Page:
 - Clear filter resets to show the current month's prescriptions
 
 Report Page:
-- Displays prescription counts per day in ascending order for easy tracking.
-- COVID-19 Statistics API:
-- Consumes a third-party backend API to fetch and display COVID-19 stats dynamically.
+- Displays prescription counts per day in ascending order for easy tracking
+
+COVID-19 Statistics API:
+- Consumes a third-party backend API to fetch and display COVID-19 stats dynamically
 
 ---
 
