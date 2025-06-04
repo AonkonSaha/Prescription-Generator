@@ -84,8 +84,8 @@ public class ValidationServiceImp implements ValidationService {
         if (!prescriptionValidationService.isValidPatientGender(prescriptionDTO.getPatientGender()) ) {
             return "Patient Gender must be male,female or other!";
         }
-        if (!prescriptionValidationService.isValidNextVisitDate(prescriptionDTO.getNextVisitDate()) ) {
-            return "Next Visit Date must be in future!";
+        if (!prescriptionValidationService.isValidNextVisitDate(prescriptionDTO.getPrescriptionDate(),prescriptionDTO.getNextVisitDate()) ) {
+            return "Next Visit Date must be in after the Prescription Date!";
         }
         return "";
     }

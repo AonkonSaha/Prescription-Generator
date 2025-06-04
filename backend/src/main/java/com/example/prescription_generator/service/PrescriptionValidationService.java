@@ -16,7 +16,7 @@ public interface PrescriptionValidationService {
     boolean isValidPrescriptionDate(LocalDate date);
     boolean isValidPatientAge(Integer age);
     boolean isValidPatientGender(String gender);
-    boolean isValidNextVisitDate(LocalDate date);
+    boolean isValidNextVisitDate(LocalDate prescriptionDate,LocalDate visitDate);
     boolean isExitPrescriptionById(Long id);
 
 }

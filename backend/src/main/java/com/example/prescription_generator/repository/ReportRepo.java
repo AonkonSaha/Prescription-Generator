@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface ReportRepo extends JpaRepository<Report, Long> {
     Optional<Report> findByDay(LocalDate day);
 
-    @Query("SELECT r FROM Report r WHERE r.doctorProfile.user.contact = :contact")
+    @Query("SELECT r FROM Report r WHERE r.doctorProfile.user.contact = :contact ORDER BY r.day ASC")
     List<Report> findAllByUserContact(@Param("contact") String contact);
 
     @Query("SELECT r FROM Report r WHERE r.doctorProfile.id = :doctorId AND r.day = :day")

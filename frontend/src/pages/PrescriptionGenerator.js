@@ -113,8 +113,9 @@ function PrescriptionGenerator() {
     } else {
       const nextDate = new Date(form.nextVisitDate);
       nextDate.setHours(0, 0, 0, 0);
-      if (nextDate <= today) {
-        newErrors.nextVisitDate = "Next Visit Date must be after today";
+      const prescDate = new Date(form.prescriptionDate);
+      if (nextDate <= prescDate) {
+        newErrors.nextVisitDate = "Next Visit Date must be after Prescription Date";
       }
     }
 

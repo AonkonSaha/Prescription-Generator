@@ -64,8 +64,8 @@ public class PrescriptionValidationServiceImp implements PrescriptionValidationS
     }
 
     @Override
-    public boolean isValidNextVisitDate(LocalDate date) {
-        return date.isAfter(LocalDate.now());
+    public boolean isValidNextVisitDate(LocalDate prescriptionDate,LocalDate visitDate) {
+        return visitDate.isAfter(prescriptionDate);
     }
 
     @Override
