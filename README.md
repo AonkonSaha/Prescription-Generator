@@ -93,7 +93,7 @@ if (!prescriptionValidationService.isValidPrescriptionDate(prescriptionDTO.getPr
 ---
 ## 🔍 Feature Details
 Prescription Create Page:
--Complete all required fields to generate a new prescription efficiently 
+- Complete all required fields to generate a new prescription efficiently 
 
 Prescription List Page:
 - Initially fetches prescriptions for the current month in ascending order by date
