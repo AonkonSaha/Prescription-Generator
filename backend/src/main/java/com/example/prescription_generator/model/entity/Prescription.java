@@ -21,20 +21,30 @@ public class Prescription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotNull
-    @Column(nullable = false)
+    @Column(name = "prescription_date", nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate prescriptionDate;
     @NotNull
-    @Column(nullable = false)
+    @Column(name="patient_name",nullable = false)
     private String patientName;
     @NotNull
-    @Column(nullable = false)
+    @Column(name="patient_age",nullable = false)
     private Integer patientAge;
     @NotNull
-    @Column(nullable = false)
+    @Column(name="patient_gender",nullable = false)
     private String patientGender;
+
+    @ElementCollection
+    @CollectionTable(name = "prescription_diagnosis", joinColumns = @JoinColumn(name = "prescription_id"))
+    @Column(name = "diagnosis")
     private Set<String> diagnosis=new HashSet<>();
+
+    @ElementCollection
+    @CollectionTable(name = "prescription_medicines", joinColumns = @JoinColumn(name = "prescription_id"))
+    @Column(name = "medicine")
     private Set<String> medicines=new HashSet<>();
+
+    @Column(name="next_visit_date")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate nextVisitDate;
     @Column(name="prescription_month")
@@ -43,6 +53,7 @@ public class Prescription {
     @Column(name="prescription_year")
     @NotNull
     private int year;
+
     @ManyToOne(fetch = FetchType.EAGER,cascade={CascadeType.PERSIST,CascadeType.MERGE})
     @JoinColumn(name = "doctor_id")
     private DoctorProfile doctorProfile;

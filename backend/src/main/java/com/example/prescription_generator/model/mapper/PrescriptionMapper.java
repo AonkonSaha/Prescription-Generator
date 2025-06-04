@@ -38,16 +38,16 @@ public class PrescriptionMapper {
                 .year(prescriptionDTO.getPrescriptionDate().getYear())
                 .build();
         doctorProfile.getPrescriptions().add(prescription);
-        Report report;
-        if(reportRepo.findByDay(prescriptionDTO.getPrescriptionDate()).isEmpty()){
-             report=new Report();
-             report.setDay(prescriptionDTO.getPrescriptionDate());
-        }
-        else{
-            report=reportRepo.findByDay(prescriptionDTO.getPrescriptionDate()).get();
-        }
+
+        Report report = reportRepo.findByDoctorIdAndDay(doctorProfile.getId(), prescriptionDTO.getPrescriptionDate())
+                .orElseGet(() -> {
+                    Report newReport = new Report();
+                    newReport.setDay(prescriptionDTO.getPrescriptionDate());
+                    newReport.setDoctorProfile(doctorProfile);
+                    return newReport;
+                });
+
         report.getPrescriptions().add(prescription);
-        report.setDoctorProfile(doctorProfile);
         doctorProfile.getReports().add(report);
         prescription.setReport(report);
         return prescription;

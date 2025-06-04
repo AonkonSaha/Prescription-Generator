@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import Navbar from "../navbar-footer/Navbar";
-import Navbar from "./../"
+import Navbar from "../navbar-footer/Navbar";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -116,7 +115,10 @@ function PrescriptionGenerator() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      toast.error("Please correct the errors in the form");
+      return;
+    }
 
     try {
       const response = await fetch(`${baseURL}/api/prescription/register`, {
@@ -134,7 +136,7 @@ function PrescriptionGenerator() {
         return;
       }
 
-      toast.success("Prescription created successfully!");
+      toast.success("✅ Prescription created successfully!");
 
       setForm({
         prescriptionDate: todayString,
@@ -147,13 +149,13 @@ function PrescriptionGenerator() {
       });
       setErrors({});
     } catch (error) {
-      toast.error("Network error: " + error.message);
+      toast.error("❌ Network error: " + error.message);
     }
   };
 
   return (
     <>
-      <NavBar/>
+      <Navbar />
       <ToastContainer position="top-right" autoClose={3000} />
       <div style={styles.container}>
         <h2>Create Prescription</h2>

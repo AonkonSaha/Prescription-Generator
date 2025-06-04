@@ -49,7 +49,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if(user.isEmpty()) {
                 throw new IllegalArgumentException("User doesn't exit..");
             }
-            if (user.get().getIsActive() && jwtUtils.validateToken(token, contact)) {
+            if (jwtUtils.validateToken(token, contact)) {
                 System.out.println("Inner auth filter");
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
