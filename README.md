@@ -58,18 +58,6 @@ cd backend
 ## Alternatively, you can run the application directly from IntelliJ IDEA (optional)
 ```
 
----
-
-## 👨‍⚕️ Default Test User
-
-Use the following credentials to log in:
-
-- **Name:** Aonkon Saha  
-- **Mobile Number:** `01881264859`  
-- **Password:** `12345678`
-
----
-
 ## 📅 Prescription Date Logic
 
 By default, doctors can select **any date** when creating a prescription.
@@ -103,13 +91,26 @@ if (!prescriptionValidationService.isValidPrescriptionDate(prescriptionDTO.getPr
 ```
 
 ---
+## 🔍 Feature Details
 
+Prescription List Page:
+- Initially fetches prescriptions for the current month in ascending order by date
+- Allows filtering by start and end dates, automatically updating the list on filter changes
+- Clear filter resets to show the current month's prescriptions
+
+Report Page:
+- Displays prescription counts per day in ascending order for easy tracking.
+- COVID-19 Statistics API:
+- Consumes a third-party backend API to fetch and display COVID-19 stats dynamically.
+
+---
 
 ## 🙌 Final Notes
 
 Once both frontend and backend are running:
-- Log in using the default user
+- Register a User
+- Log in using the user credentials
 - Create a prescription
-- Explore reports and features
+- Explore prescriptions, reports and features
 
 Enjoy coding and enhancing the Prescription Generator! 🎉
