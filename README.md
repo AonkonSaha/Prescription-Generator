@@ -9,6 +9,7 @@ Built using **React.js** for the frontend and **Spring Boot** for the backend, w
 
 - 🔐 Doctor registration and login (JWT-based authentication & authorization)
 - 💊 Create and manage prescriptions
+- 📄 Generate & download PDF prescriptions
 - 📈 View reports for better tracking
 - 📱 Responsive, clean, and modern UI/UX
 
@@ -20,6 +21,7 @@ Built using **React.js** for the frontend and **Spring Boot** for the backend, w
 - **Backend:** Spring Boot (Java)  
 - **Database:** H2 (in-memory for development)  
 - **Authentication:** JWT (JSON Web Tokens)
+- **PDF Generation:** OpenPDF and ZXing (QR Code)
 
 ---
 
@@ -92,18 +94,23 @@ if (!prescriptionValidationService.isValidPrescriptionDate(prescriptionDTO.getPr
 
 ---
 ## 🔍 Feature Details
-Prescription Create Page:
-- Complete all required fields to generate a new prescription efficiently 
+**Prescription Management**
+- Create, update, and delete prescriptions with all necessary fields validated 
 
-Prescription List Page:
+**Prescription List Page**
 - Initially fetches prescriptions for the current month in ascending order by date
 - Allows filtering by start and end dates, automatically updating the list on filter changes
 - Clear filter resets to show the current month's prescriptions
 
-Report Page:
+**PDF Prescription Download**
+- Generates professional layout with patient/doctor info and medicines
+- Includes a QR code linking back to prescription details
+- Fully styled and print-ready
+
+**Report Page**
 - Displays prescription counts per day in ascending order for easy tracking
 
-COVID-19 Statistics API:
+**COVID-19 Statistics API**
 - Consumes a third-party backend API to fetch and display COVID-19 stats dynamically
 
 ---

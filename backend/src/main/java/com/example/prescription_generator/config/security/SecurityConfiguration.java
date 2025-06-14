@@ -33,7 +33,8 @@ public class SecurityConfiguration  {
             "/swagger-ui.html",
             "/h2-console/**",
             "/api/auth/login",
-            "/api/auth/register"
+            "/api/auth/register",
+            "/logo.png"
     };
 
     @Bean

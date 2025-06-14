@@ -12,7 +12,6 @@ function PrescriptionList() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const prescriptionsPerPage = 10;
-
   const baseURL = process.env.REACT_APP_BACK_END_BASE_URL || "http://localhost:8080";
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -26,16 +25,14 @@ function PrescriptionList() {
       },
     })
       .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to fetch prescriptions");
-        }
+        if (!res.ok) throw new Error("Failed to fetch prescriptions");
         return res.json();
       })
       .then((data) => {
         setPrescriptions(data.prescriptions);
         setFilteredPrescriptions(data.prescriptions);
         setLoading(false);
-        setCurrentPage(1); // reset page on new data
+        setCurrentPage(1);
       })
       .catch((err) => {
         setError(err.message);
@@ -43,62 +40,38 @@ function PrescriptionList() {
       });
   }, [baseURL, token]);
 
-  // Filter prescriptions when startDate or endDate changes
   useEffect(() => {
-    if (startDate && endDate) {
+    const fetchFiltered = async () => {
       setLoading(true);
-      fetch(`${baseURL}/api/prescription/get/all/${startDate}/${endDate}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error("Failed to fetch prescriptions for date range");
-          }
-          return res.json();
-        })
-        .then((data) => {
-          setPrescriptions(data.prescriptions);
-          setFilteredPrescriptions(data.prescriptions);
-          setLoading(false);
-          setCurrentPage(1); // reset page on new data
-        })
-        .catch((err) => {
-          setError(err.message);
-          setLoading(false);
+      const url =
+        startDate && endDate
+          ? `${baseURL}/api/prescription/get/all/${startDate}/${endDate}`
+          : `${baseURL}/api/prescription/get/all/recent/month`;
+
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         });
-    } else {
-      setLoading(true);
-      fetch(`${baseURL}/api/prescription/get/all/recent/month`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error("Failed to fetch recent prescriptions");
-          }
-          return res.json();
-        })
-        .then((data) => {
-          setPrescriptions(data.prescriptions);
-          setFilteredPrescriptions(data.prescriptions);
-          setLoading(false);
-          setCurrentPage(1); // reset page on new data
-        })
-        .catch((err) => {
-          setError(err.message);
-          setLoading(false);
-        });
-    }
+        if (!response.ok) throw new Error("Failed to fetch filtered prescriptions");
+
+        const data = await response.json();
+        setPrescriptions(data.prescriptions);
+        setFilteredPrescriptions(data.prescriptions);
+        setCurrentPage(1);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFiltered();
   }, [startDate, endDate, baseURL, token]);
 
-  // Pagination calculations
   const indexOfLastPrescription = currentPage * prescriptionsPerPage;
   const indexOfFirstPrescription = indexOfLastPrescription - prescriptionsPerPage;
   const currentPrescriptions = filteredPrescriptions.slice(
@@ -108,20 +81,14 @@ function PrescriptionList() {
   const totalPages = Math.ceil(filteredPrescriptions.length / prescriptionsPerPage);
 
   const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
   const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
-  const handleUpdate = (id) => {
-    navigate(`/prescription/edit/${id}`);
-  };
+  const handleUpdate = (id) => navigate(`/prescription/edit/${id}`);
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this prescription?")) {
@@ -132,15 +99,36 @@ function PrescriptionList() {
         },
       })
         .then((res) => {
-          if (!res.ok) {
-            throw new Error("Failed to delete prescription");
-          }
+          if (!res.ok) throw new Error("Failed to delete prescription");
           setPrescriptions((prev) => prev.filter((p) => p.id !== id));
           setFilteredPrescriptions((prev) => prev.filter((p) => p.id !== id));
         })
-        .catch((err) => {
-          setError(err.message);
-        });
+        .catch((err) => setError(err.message));
+    }
+  };
+
+  const handleDownload = async (id) => {
+    try {
+      const response = await fetch(`${baseURL}/api/prescription/pdf/generate/${id}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Failed to download PDF");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `prescription-${id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      alert("Error downloading PDF: " + error.message);
     }
   };
 
@@ -150,7 +138,6 @@ function PrescriptionList() {
       <div style={styles.container}>
         <h2 style={styles.title}>Prescription List</h2>
 
-        {/* Date Filter */}
         <div style={styles.filterContainer}>
           <label style={styles.filterLabel}>
             Start Date:
@@ -174,14 +161,7 @@ function PrescriptionList() {
             />
           </label>
 
-          <button
-            onClick={() => {
-              setStartDate("");
-              setEndDate("");
-            }}
-            style={styles.clearBtn}
-            title="Clear filter"
-          >
+          <button onClick={() => { setStartDate(""); setEndDate(""); }} style={styles.clearBtn}>
             Clear Filter
           </button>
         </div>
@@ -199,14 +179,15 @@ function PrescriptionList() {
             <table style={styles.table}>
               <thead>
                 <tr style={styles.theadRow}>
-                  <th style={styles.th}>Prescription Date</th>
-                  <th style={styles.th}>Patient Name</th>
+                  <th style={styles.th}>Date</th>
+                  <th style={styles.th}>Patient</th>
                   <th style={styles.th}>Age</th>
                   <th style={styles.th}>Gender</th>
                   <th style={styles.th}>Diagnosis</th>
                   <th style={styles.th}>Medicines</th>
-                  <th style={styles.th}>Next Visit Date</th>
+                  <th style={styles.th}>Next Visit</th>
                   <th style={styles.th}>Actions</th>
+                  <th style={styles.th}>Download</th>
                 </tr>
               </thead>
               <tbody>
@@ -241,12 +222,19 @@ function PrescriptionList() {
                         </button>
                       </div>
                     </td>
+                    <td style={styles.td}>
+                      <button
+                        style={{ ...styles.button, backgroundColor: "#27ae60", color: "#fff" }}
+                        onClick={() => handleDownload(prescription.id)}
+                      >
+                        Download PDF
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
 
-            {/* Pagination Controls */}
             <div style={styles.paginationContainer}>
               <button
                 onClick={handlePreviousPage}
@@ -281,7 +269,6 @@ function PrescriptionList() {
   );
 }
 
-// ✅ Styles
 const styles = {
   container: {
     marginTop: "80px",
@@ -320,7 +307,6 @@ const styles = {
     border: "1px solid #ccc",
     minWidth: "150px",
     outline: "none",
-    transition: "border-color 0.2s ease",
   },
   clearBtn: {
     backgroundColor: "#95a5a6",
@@ -333,10 +319,6 @@ const styles = {
     fontWeight: "600",
     alignSelf: "flex-end",
     height: "38px",
-    transition: "background-color 0.3s ease",
-  },
-  clearBtnHover: {
-    backgroundColor: "#7f8c8d",
   },
   tableWrapper: {
     overflowX: "auto",
@@ -349,29 +331,27 @@ const styles = {
     borderCollapse: "collapse",
     fontSize: "16px",
     minWidth: "900px",
-    border: "1px solid #ccc", // Outer border for the table
+    border: "1px solid #ccc",
   },
   theadRow: {
     backgroundColor: "#2c3e50",
     color: "#ffffff",
-    borderBottom: "2px solid #2980b9", // Stronger bottom border for header
   },
   th: {
     padding: "14px 16px",
     textAlign: "left",
     color: "#fff",
     fontWeight: "600",
-    borderRight: "1px solid #ccc", // Vertical divider between columns
-    borderBottom: "1px solid #ccc", // Bottom border to separate header from body
+    borderRight: "1px solid #ccc",
+    borderBottom: "1px solid #ccc",
   },
   td: {
     padding: "14px 16px",
-    borderRight: "1px solid #ddd", // vertical divider between columns
-    borderBottom: "1px solid #eee", // horizontal divider between rows
+    borderRight: "1px solid #ddd",
+    borderBottom: "1px solid #eee",
   },
   tr: {
     transition: "background-color 0.3s ease",
-    cursor: "default",
   },
   tbodyRowEven: {
     backgroundColor: "#fafafa",
@@ -381,16 +361,20 @@ const styles = {
   },
   actionButtons: {
     display: "flex",
+    flexDirection: "row",
     gap: "10px",
+    justifyContent: "center",
+    alignItems: "center",
+    flexWrap: "nowrap",
   },
   button: {
-    padding: "8px 14px",
+    padding: "6px 12px",
     border: "none",
     borderRadius: "6px",
     cursor: "pointer",
     fontSize: "14px",
     fontWeight: "500",
-    transition: "background-color 0.3s ease, transform 0.2s ease",
+    whiteSpace: "nowrap",
   },
   updateBtn: {
     backgroundColor: "#3498db",
@@ -416,7 +400,6 @@ const styles = {
     cursor: "pointer",
     backgroundColor: "#2c3e50",
     color: "#fff",
-    transition: "opacity 0.3s ease",
   },
   disabledButton: {
     opacity: 0.5,

@@ -3,11 +3,14 @@ package com.example.prescription_generator.controller;
 import com.example.prescription_generator.model.dto.PrescriptionDTO;
 import com.example.prescription_generator.model.entity.Prescription;
 import com.example.prescription_generator.model.mapper.PrescriptionMapper;
+import com.example.prescription_generator.service.PrescriptionPdfGeneratorService;
 import com.example.prescription_generator.service.PrescriptionService;
 import com.example.prescription_generator.service.PrescriptionValidationService;
 import com.example.prescription_generator.service.ValidationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +28,7 @@ public class PrescriptionController {
     private final PrescriptionMapper prescriptionMapper;
     private final ValidationService validationService;
     private final PrescriptionValidationService prescriptionValidationService;
+    private final PrescriptionPdfGeneratorService prescriptionPdfGeneratorService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody PrescriptionDTO prescriptionDTO){
@@ -81,5 +85,20 @@ public class PrescriptionController {
     public ResponseEntity<?> getReport(){
        String contact= SecurityContextHolder.getContext().getAuthentication().getName();
        return ResponseEntity.ok(prescriptionMapper.toReportDTOS(prescriptionService.getReports(contact)));
+    }
+
+    @GetMapping("/pdf/generate/{id}")
+    public ResponseEntity<?> generatePrescription(@PathVariable("id") Long id){
+        if (!prescriptionValidationService.isExitPrescriptionById(id)){
+            return ResponseEntity.badRequest().body("Prescription doesn't exit!");
+        }
+        byte[] pdf = prescriptionPdfGeneratorService.pdfGenerator(id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "prescription.pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(pdf);
     }
 }
