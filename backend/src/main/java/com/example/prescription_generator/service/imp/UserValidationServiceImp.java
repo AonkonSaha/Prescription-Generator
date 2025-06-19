@@ -1,5 +1,6 @@
 package com.example.prescription_generator.service.imp;
 
+import com.example.prescription_generator.enums.Gender;
 import com.example.prescription_generator.model.entity.MUser;
 import com.example.prescription_generator.repository.UserRepo;
 import com.example.prescription_generator.service.UserValidationService;
@@ -7,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -50,8 +53,7 @@ public class UserValidationServiceImp implements UserValidationService {
 
     @Override
     public boolean isValidGender(String gender) {
-        Set<String> genders=Set.of("male","female","other");
-        return genders.contains(gender.toLowerCase());
+        return Gender.MALE.toString().equalsIgnoreCase(gender) || Gender.FEMALE.toString().equalsIgnoreCase(gender) || Gender.OTHER.toString().equalsIgnoreCase(gender);
     }
     @Override
     public boolean isExitUserById(Long id) {
@@ -79,6 +81,13 @@ public class UserValidationServiceImp implements UserValidationService {
     public boolean isEmptyDoctorDegrees(Set<String> degrees) {
         return degrees.isEmpty();
     }
+
+    @Override
+    public boolean isValidDoctorAges(LocalDate birthDate) {
+        int age = Period.between(birthDate, LocalDate.now()).getYears();
+        return  age>=25 && age<=120;
+    }
+
     @Override
     public boolean isEmptyLincenseNumber(String licenseNumber) {
         return licenseNumber.isEmpty();

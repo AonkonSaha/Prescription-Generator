@@ -47,8 +47,20 @@ function Register() {
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validateMobile = (mobile) => /^[0-9]{10,15}$/.test(mobile);
 
+  const isValidDoctorAge = (dob) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   const validateForm = () => {
     const errors = {};
+
     if (!form.name.trim()) errors.name = "Full Name is required.";
     if (!form.mobileNumber.trim()) errors.mobileNumber = "Mobile Number is required.";
     else if (!validateMobile(form.mobileNumber)) errors.mobileNumber = "Invalid Mobile Number.";
@@ -60,15 +72,23 @@ function Register() {
     if (!form.designation.trim()) errors.designation = "Designation is required.";
     if (!form.licenseNumber.trim()) errors.licenseNumber = "License Number is required.";
 
-    if (!form.degrees.length || form.degrees.every((d) => !d.trim()))
+    if (!form.degrees.length || form.degrees.every((d) => !d.trim())) {
       errors.degrees = "At least one degree is required.";
-    else {
+    } else {
       form.degrees.forEach((deg, idx) => {
         if (!deg.trim()) errors[`degrees_${idx}`] = "Degree cannot be empty.";
       });
     }
 
-    if (!form.dateOfBirth) errors.dateOfBirth = "Date of Birth is required.";
+    if (!form.dateOfBirth) {
+      errors.dateOfBirth = "Date of Birth is required.";
+    } else {
+      const age = isValidDoctorAge(form.dateOfBirth);
+      if (age < 25 || age > 120) {
+        errors.dateOfBirth = "Doctor must be between 25 and 120 years old.";
+      }
+    }
+
     if (!form.password) errors.password = "Password is required.";
     else if (form.password.length < 8) errors.password = "Minimum 8 characters.";
 
@@ -115,7 +135,7 @@ function Register() {
     <>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar closeOnClick pauseOnHover />
       <div style={styles.container}>
-        <div style={styles.card} role="main" aria-label="Doctor registration form">
+        <div style={styles.card}>
           <h2 style={styles.title}>Doctor Registration</h2>
 
           <Input label="Full Name" name="name" value={form.name} onChange={handleChange} error={fieldErrors.name} />

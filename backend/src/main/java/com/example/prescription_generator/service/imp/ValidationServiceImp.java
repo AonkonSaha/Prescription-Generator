@@ -49,6 +49,9 @@ public class ValidationServiceImp implements ValidationService {
         if(userValidationService.isEmptyLincenseNumber(userDTO.getLicenseNumber())){
             return "License Number can't be empty!";
         }
+        if(!userValidationService.isValidDoctorAges(userDTO.getDateOfBirth())){
+            return "Date of Birth must be 25 to 120 years old!";
+        }
         return "";
     }
 

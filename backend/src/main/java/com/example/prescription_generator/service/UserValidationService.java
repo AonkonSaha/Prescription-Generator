@@ -4,6 +4,7 @@ package com.example.prescription_generator.service;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 public interface UserValidationService {
@@ -21,7 +22,7 @@ public interface UserValidationService {
     boolean isEqualNewPassAndConfirmPass(String newPass, String confirmPass);
     boolean isEmptyDoctorDesignation(String designation);
     boolean isEmptyDoctorDegrees(Set<String> degrees);
-
+    boolean isValidDoctorAges(LocalDate BirthDate);
     boolean isEmptyLincenseNumber(String licenseNumber);
 
     boolean isValidUserContactDigit(String mobileNumber);
