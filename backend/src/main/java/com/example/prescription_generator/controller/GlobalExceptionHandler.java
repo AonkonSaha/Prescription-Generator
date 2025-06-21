@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(InvalidUserException.class)
-    public ResponseEntity<ErrorResponse> handleUserValidationException(InvalidUserException exception, HttpServletRequest request) {
+    @ExceptionHandler(InvalidUserArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleUserValidationException(InvalidUserArgumentException exception, HttpServletRequest request) {
         return buildError(HttpStatus.NOT_ACCEPTABLE, exception.getMessage(), request.getRequestURI());
     }
 
@@ -23,13 +23,13 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.NOT_FOUND, exception.getMessage(), request.getRequestURI());
     }
 
-    @ExceptionHandler(InvalidLoginException.class)
-    public ResponseEntity<ErrorResponse> handleUserCredentialException(InvalidLoginException exception, HttpServletRequest request) {
+    @ExceptionHandler(InvalidLoginArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleUserCredentialException(InvalidLoginArgumentException exception, HttpServletRequest request) {
         return buildError(HttpStatus.NOT_FOUND, exception.getMessage(), request.getRequestURI());
     }
 
-    @ExceptionHandler(InvalidPrescriptionException.class)
-    public ResponseEntity<ErrorResponse> handlePrescriptionValidationException(InvalidPrescriptionException exception, HttpServletRequest request) {
+    @ExceptionHandler(InvalidPrescriptionArgumentException.class)
+    public ResponseEntity<ErrorResponse> handlePrescriptionValidationException(InvalidPrescriptionArgumentException exception, HttpServletRequest request) {
         return buildError(HttpStatus.NOT_ACCEPTABLE, exception.getMessage(), request.getRequestURI());
     }
 

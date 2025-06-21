@@ -1,6 +1,6 @@
 package com.example.prescription_generator.controller;
 
-import com.example.prescription_generator.exceptions.InvalidPrescriptionException;
+import com.example.prescription_generator.exceptions.InvalidPrescriptionArgumentException;
 import com.example.prescription_generator.exceptions.PrescriptionNotFoundException;
 import com.example.prescription_generator.model.dto.PrescriptionDTO;
 import com.example.prescription_generator.model.mapper.PrescriptionMapper;
@@ -34,7 +34,7 @@ public class PrescriptionController {
     @PostMapping("/register")
     public ResponseEntity<PrescriptionDTO> register(@RequestBody PrescriptionDTO prescriptionDTO){
         if(!validationService.validatePrescriptionDetails(prescriptionDTO).isEmpty()){
-            throw new InvalidPrescriptionException(validationService.validatePrescriptionDetails(prescriptionDTO));
+            throw new InvalidPrescriptionArgumentException(validationService.validatePrescriptionDetails(prescriptionDTO));
         }
         return ResponseEntity.ok(prescriptionMapper.toPrescriptionDTO(
                 prescriptionService.savePrescription(prescriptionMapper.toPrescription(prescriptionDTO))));
@@ -42,7 +42,7 @@ public class PrescriptionController {
     @PutMapping("/update/{id}")
     public ResponseEntity<PrescriptionDTO> update(@RequestBody PrescriptionDTO prescriptionDTO, @PathVariable("id") Long id){
         if(!validationService.validatePrescriptionDetails(prescriptionDTO).isEmpty()){
-            throw new InvalidPrescriptionException(validationService.validatePrescriptionDetails(prescriptionDTO));
+            throw new InvalidPrescriptionArgumentException(validationService.validatePrescriptionDetails(prescriptionDTO));
         }
         return ResponseEntity.ok(prescriptionMapper.toPrescriptionDTO(
                 prescriptionService.updatePrescription(id,prescriptionDTO)

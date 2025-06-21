@@ -1,9 +1,9 @@
 package com.example.prescription_generator.controller;
 
 
-import com.example.prescription_generator.exceptions.InvalidLoginException;
+import com.example.prescription_generator.exceptions.InvalidLoginArgumentException;
 import com.example.prescription_generator.exceptions.UserNotFoundException;
-import com.example.prescription_generator.exceptions.InvalidUserException;
+import com.example.prescription_generator.exceptions.InvalidUserArgumentException;
 import com.example.prescription_generator.jwt.utils.JwtUtils;
 import com.example.prescription_generator.jwt.utils.RequestUtils;
 import com.example.prescription_generator.model.dto.LoginDTO;
@@ -34,7 +34,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<UserDTO> register(@RequestBody UserDTO userDTO) {
         if(!validationService.validateDoctorDetails(userDTO).isEmpty()){
-            throw new InvalidUserException(validationService.validateDoctorDetails(userDTO));
+            throw new InvalidUserArgumentException(validationService.validateDoctorDetails(userDTO));
         }
         return ResponseEntity.ok(userMapper.toUserDTO(
                 userService.saveUser(userMapper.toUser(userDTO))));
@@ -48,7 +48,7 @@ public class AuthController {
             throw new UserNotFoundException("Mobile Number doesn't exit!");
         }
         if(!userValidationService.isExitUserPassword(loginDTO.getMobileNumber(),loginDTO.getPassword())){
-            throw new InvalidLoginException("Password is incorrect!");
+            throw new InvalidLoginArgumentException("Password is incorrect!");
         }
         return ResponseEntity.ok(Map.of("token",userService.authenticateUser(user,loginDTO)));
     }
