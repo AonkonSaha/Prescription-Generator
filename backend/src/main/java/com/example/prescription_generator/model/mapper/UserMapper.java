@@ -44,6 +44,7 @@ public class UserMapper {
                 .designation(mUser.getDoctorProfile().getDesignation())
                 .licenseNumber(mUser.getDoctorProfile().getLicenseNumber())
                 .dateOfBirth(mUser.getDateOfBirth())
+                .degrees(mUser.getDoctorProfile().getDegrees())
                 .build();
     }
 

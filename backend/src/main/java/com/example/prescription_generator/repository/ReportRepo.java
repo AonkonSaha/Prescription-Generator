@@ -2,7 +2,7 @@ package com.example.prescription_generator.repository;
 
 import com.example.prescription_generator.model.entity.DoctorProfile;
 import com.example.prescription_generator.model.entity.Report;
-import jakarta.validation.constraints.NotNull;
+//import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

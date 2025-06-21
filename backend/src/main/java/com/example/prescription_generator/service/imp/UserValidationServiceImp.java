@@ -22,7 +22,7 @@ public class UserValidationServiceImp implements UserValidationService {
 
     @Override
     public boolean isEmptyUserName(String name) {
-        return name.isEmpty();
+        return name==null || name.isEmpty();
     }
     @Override
     public boolean isExitUserByContact(String contact) {
@@ -31,7 +31,7 @@ public class UserValidationServiceImp implements UserValidationService {
 
     @Override
     public boolean isEmptyUserContact(String contact) {
-        return contact.isEmpty();
+        return contact==null || contact.isEmpty();
     }
 
     @Override
@@ -75,11 +75,11 @@ public class UserValidationServiceImp implements UserValidationService {
 
     @Override
     public boolean isEmptyDoctorDesignation(String designation) {
-        return designation.isEmpty();
+        return designation==null || designation.trim().isEmpty() ;
     }
     @Override
     public boolean isEmptyDoctorDegrees(Set<String> degrees) {
-        return degrees.isEmpty();
+        return degrees==null || degrees.isEmpty();
     }
 
     @Override
@@ -90,7 +90,7 @@ public class UserValidationServiceImp implements UserValidationService {
 
     @Override
     public boolean isEmptyLincenseNumber(String licenseNumber) {
-        return licenseNumber.isEmpty();
+        return licenseNumber==null  || licenseNumber.isEmpty();
     }
 
     @Override

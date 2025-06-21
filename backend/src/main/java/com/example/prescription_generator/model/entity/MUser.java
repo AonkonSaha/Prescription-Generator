@@ -3,7 +3,7 @@ package com.example.prescription_generator.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+//import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -21,14 +21,11 @@ public class MUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull(message = "Name cannot be null")
     @Column(nullable = false)
     private String name;
     private String email;
-    @NotNull(message = "Contact cannot be null")
     @Column(nullable = false,unique = true)
     private String contact;
-    @NotNull(message = "Password cannot be null")
     @Column(nullable = false)
     private String password;
     private String gender;

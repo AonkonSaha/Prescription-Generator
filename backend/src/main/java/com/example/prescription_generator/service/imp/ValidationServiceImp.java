@@ -44,7 +44,7 @@ public class ValidationServiceImp implements ValidationService {
             return "Designation can't be empty!";
         }
         if(userValidationService.isEmptyDoctorDegrees(userDTO.getDegrees())){
-            return "Degrees can't be empty!";
+            return "Degrees as Array can't be empty!";
         }
         if(userValidationService.isEmptyLincenseNumber(userDTO.getLicenseNumber())){
             return "License Number can't be empty!";

@@ -1,7 +1,8 @@
 package com.example.prescription_generator.controller;
 
+import com.example.prescription_generator.exceptions.InvalidPrescriptionException;
+import com.example.prescription_generator.exceptions.PrescriptionNotFoundException;
 import com.example.prescription_generator.model.dto.PrescriptionDTO;
-import com.example.prescription_generator.model.entity.Prescription;
 import com.example.prescription_generator.model.mapper.PrescriptionMapper;
 import com.example.prescription_generator.service.PrescriptionPdfGeneratorService;
 import com.example.prescription_generator.service.PrescriptionService;
@@ -31,26 +32,26 @@ public class PrescriptionController {
     private final PrescriptionPdfGeneratorService prescriptionPdfGeneratorService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody PrescriptionDTO prescriptionDTO){
+    public ResponseEntity<PrescriptionDTO> register(@RequestBody PrescriptionDTO prescriptionDTO){
         if(!validationService.validatePrescriptionDetails(prescriptionDTO).isEmpty()){
-            return ResponseEntity.badRequest().body(validationService.validatePrescriptionDetails(prescriptionDTO));
+            throw new InvalidPrescriptionException(validationService.validatePrescriptionDetails(prescriptionDTO));
         }
         return ResponseEntity.ok(prescriptionMapper.toPrescriptionDTO(
                 prescriptionService.savePrescription(prescriptionMapper.toPrescription(prescriptionDTO))));
     }
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> update(@RequestBody PrescriptionDTO prescriptionDTO, @PathVariable("id") Long id){
+    public ResponseEntity<PrescriptionDTO> update(@RequestBody PrescriptionDTO prescriptionDTO, @PathVariable("id") Long id){
         if(!validationService.validatePrescriptionDetails(prescriptionDTO).isEmpty()){
-            return ResponseEntity.badRequest().body(validationService.validatePrescriptionDetails(prescriptionDTO));
+            throw new InvalidPrescriptionException(validationService.validatePrescriptionDetails(prescriptionDTO));
         }
         return ResponseEntity.ok(prescriptionMapper.toPrescriptionDTO(
                 prescriptionService.updatePrescription(id,prescriptionDTO)
         ));
     }
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") Long id){
+    public ResponseEntity<String> delete(@PathVariable("id") Long id){
         if (!prescriptionValidationService.isExitPrescriptionById(id)){
-            return ResponseEntity.badRequest().body("Prescription doesn't exit!");
+            throw new PrescriptionNotFoundException("Prescription doesn't exit!");
         }
         prescriptionService.deletePrescription(id);
         return ResponseEntity.ok("Prescription deleted successfully!");
@@ -90,7 +91,7 @@ public class PrescriptionController {
     @GetMapping("/pdf/generate/{id}")
     public ResponseEntity<?> generatePrescription(@PathVariable("id") Long id){
         if (!prescriptionValidationService.isExitPrescriptionById(id)){
-            return ResponseEntity.badRequest().body("Prescription doesn't exit!");
+            throw new PrescriptionNotFoundException("Prescription doesn't exit!");
         }
         byte[] pdf = prescriptionPdfGeneratorService.pdfGenerator(id);
         HttpHeaders headers = new HttpHeaders();

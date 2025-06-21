@@ -1,6 +1,9 @@
 package com.example.prescription_generator.controller;
 
 
+import com.example.prescription_generator.exceptions.InvalidLoginException;
+import com.example.prescription_generator.exceptions.UserNotFoundException;
+import com.example.prescription_generator.exceptions.InvalidUserException;
 import com.example.prescription_generator.jwt.utils.JwtUtils;
 import com.example.prescription_generator.jwt.utils.RequestUtils;
 import com.example.prescription_generator.model.dto.LoginDTO;
@@ -14,8 +17,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -31,30 +32,29 @@ public class AuthController {
     private final UserValidationService userValidationService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserDTO> register(@RequestBody UserDTO userDTO) {
         if(!validationService.validateDoctorDetails(userDTO).isEmpty()){
-            System.out.println("dcndncn------------------ "+validationService.validateDoctorDetails(userDTO));
-            return ResponseEntity.badRequest().body(validationService.validateDoctorDetails(userDTO));
+            throw new InvalidUserException(validationService.validateDoctorDetails(userDTO));
         }
         return ResponseEntity.ok(userMapper.toUserDTO(
                 userService.saveUser(userMapper.toUser(userDTO))));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<Map<String,String>> login(@RequestBody LoginDTO loginDTO) {
         System.out.println("Contact: "+loginDTO.getMobileNumber()+" Password: "+loginDTO.getPassword());
         MUser user= userService.findUserByContact(loginDTO.getMobileNumber());
         if(user==null){
-            return ResponseEntity.badRequest().body("Mobile Number doesn't exit!");
+            throw new UserNotFoundException("Mobile Number doesn't exit!");
         }
         if(!userValidationService.isExitUserPassword(loginDTO.getMobileNumber(),loginDTO.getPassword())){
-            return ResponseEntity.badRequest().body("Password is incorrect!");
+            throw new InvalidLoginException("Password is incorrect!");
         }
         return ResponseEntity.ok(Map.of("token",userService.authenticateUser(user,loginDTO)));
     }
     @PostMapping("/logout")
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<?> logout(){
+    public ResponseEntity<String> logout(){
         HttpServletRequest request= RequestUtils.getCurrentHttpRequest();
         if(request==null){
             return ResponseEntity.badRequest().body("HttpServletRequest Object is empty");

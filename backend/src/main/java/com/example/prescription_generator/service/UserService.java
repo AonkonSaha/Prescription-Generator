@@ -3,7 +3,7 @@ package com.example.prescription_generator.service;
 import com.example.prescription_generator.model.dto.LoginDTO;
 import com.example.prescription_generator.model.dto.PasswordDTO;
 import com.example.prescription_generator.model.entity.MUser;
-import jakarta.validation.constraints.NotNull;
+//import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
