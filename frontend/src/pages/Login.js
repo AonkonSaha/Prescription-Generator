@@ -37,7 +37,7 @@ function Login() {
       if (response.ok && data.token) {
         localStorage.setItem("token", data.token);
         toast.success("Login successful! Redirecting...");
-        setTimeout(() => navigate("/home"), 1500);
+        setTimeout(() => navigate("/prescriptions"), 1500);
       } else {
         toast.error(data.message || "Invalid mobile number or password.");
       }
