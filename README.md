@@ -1,74 +1,120 @@
-# 📝 Prescription Generator
 
-A **full-stack web application** to help doctors generate, manage, and review prescriptions with ease.  
-Built using **React.js** for the frontend and **Spring Boot** for the backend, with an in-memory **H2 database** for seamless local development.
+# 🩺 Prescription Generator – Full Stack Web App
 
----
-
-## 🚀 Features
-
-- 🔐 Doctor registration and login (JWT-based authentication & authorization)
-- 💊 Create and manage prescriptions
-- 📄 Generate & download PDF prescriptions
-- 📈 View reports for better tracking
-- 📱 Responsive, clean, and modern UI/UX
+A complete and scalable **prescription management system** designed for doctors and admins to securely **create**, **manage**, and **download medical prescriptions**.  
+Built with **React.js** and **Spring Boot**, it now supports **multi-role authentication**, **MySQL persistence**, and **well-documented REST APIs** with Swagger.
 
 ---
 
-## 🛠 Tech Stack
+## 🚀 Key Features
 
-- **Frontend:** React.js  
-- **Backend:** Spring Boot (Java)  
-- **Database:** H2 (in-memory for development)  
-- **Authentication:** JWT (JSON Web Tokens)
-- **PDF Generation:** OpenPDF and ZXing (QR Code)
+- 🔐 **JWT-based Authentication** – Secure login for Doctors and Admins  
+- 👨‍⚕️ **Doctor Dashboard** – Create, edit, and view prescriptions  
+- 🧑‍💼 **Admin Panel** – Manage users, roles, and system data  
+- 📄 **PDF Generator** – Professional prescription layout with QR code  
+- 📊 **Reports Page** – Daily prescription statistics  
+- 🌐 **Live COVID-19 Stats** – Dynamic data from external API  
+- 🧭 **Swagger/OpenAPI Docs** – Fully documented REST APIs for easy integration  
+- 🧑‍🤝‍🧑 **Multi-Role Support** – Role-based route access and control  
+- 💾 **MySQL Integration** – Real data persistence  
+
+---
+
+## 🧰 Tech Stack
+
+| Layer        | Technology                             |
+|--------------|----------------------------------------|
+| Frontend     | React.js (Inline CSS)                  |
+| Backend      | Spring Boot (Java 21+)                 |
+| Database     | MySQL                                  |
+| Auth         | JWT (JSON Web Tokens)                  |
+| PDF Support  | OpenPDF + ZXing (for QR Code)          |
+| Docs         | Swagger UI (SpringDoc OpenAPI)         |
+| Build Tools  | Gradle (Groovy DSL), Node.js + npm     |
+| Architecture | Domain-Driven Design, SOLID , DRY      |
 
 ---
 
 ## ⚙️ Prerequisites
 
-Ensure the following tools are installed:
+Ensure you have the following installed:
 
-- ✅ **Java 21+** (for Spring Boot)
-- ✅ **Gradle-Groovy** (to build the backend)
-- ✅ **Node.js v22.16.0+** and **npm** (to run the frontend)
+- ✅ **Java 21+**
+- ✅ **Gradle (Groovy DSL)**
+- ✅ **Node.js v22.16.0+**
+- ✅ **npm**
+- ✅ **MySQL Server running**
 
 ---
 
-## 🧩 Getting Started
+## 🔐 Default Dummy User (Preloaded)
 
-### 1. Clone the repository
+To get started quickly, a dummy User account is inserted on application startup:
+
+| Field         | Value             |
+|---------------|-------------------|
+| Name          | `Aonkon Saha`     |
+| Mobile Number | `01881264859`     |
+| Password      | `12345678`        |
+| Role          | `DOCTOR` `ADMIN` |
+
+---
+
+## 🚀 Getting Started
+
+### 1️⃣ Clone the Repository
 
 ```bash
 git clone https://github.com/yourusername/prescription-generator.git
 cd prescription-generator
 ```
 
-### 2. Frontend Setup
+### 2️⃣ Backend Setup
+
+```bash
+cd backend
+# Set your MySQL credentials in `application.yml`
+./gradlew bootRun
+# or run via IntelliJ IDEA
+```
+
+### 3️⃣ Frontend Setup
 
 ```bash
 cd frontend
 npm install
-npm start
+npm run start
 ```
 
-### 3. Backend Setup
+---
 
-```bash
-cd backend
-./gradlew bootRun or Run from IntelliJ Idea(Optional)
-## Alternatively, you can run the application directly from IntelliJ IDEA (optional)
-```
+## 🧪 API Documentation (Swagger UI)
 
-## 📅 Prescription Date Logic
+Once the backend is running, access Swagger UI here:  
+📘 [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
-By default, doctors can select **any date** when creating a prescription.
+Includes:
+- Auth endpoints (login, register)
+- Prescription APIs
+- Role-based secured endpoints (Admin, Doctor)
+- Complete request/response models with validation
 
-To **restrict** prescriptions to **today’s date only**, enable date validation:
+---
 
-### ✅ Frontend (React)
+## 👮 Role-Based Access Control
 
-Edit `PrescriptionGenerator.js` and `EditPrescription.js` to uncomment the following:
+- `ROLE_DOCTOR`: Can manage prescriptions, view reports
+- `ROLE_ADMIN`: Can view users, assign roles, manage system data
+
+---
+
+## 📅 Prescription Date Validation
+
+By default, any date is allowed. To restrict to **today only**:
+
+### ✅ Frontend Validation
+
+Uncomment in `PrescriptionGenerator.js` & `EditPrescription.js`:
 
 ```js
 if (!form.prescriptionDate) {
@@ -82,9 +128,9 @@ if (!form.prescriptionDate) {
 }
 ```
 
-### ✅ Backend (Spring Boot)
+### ✅ Backend Validation
 
-In `PrescriptionValidationImpl.java`, ensure the date check is enabled:
+Ensure this logic is active in `PrescriptionValidationImpl.java`:
 
 ```java
 if (!prescriptionValidationService.isValidPrescriptionDate(prescriptionDTO.getPrescriptionDate())) {
@@ -93,41 +139,47 @@ if (!prescriptionValidationService.isValidPrescriptionDate(prescriptionDTO.getPr
 ```
 
 ---
-## 🔍 Feature Details
-**Prescription Management**
-- Create, update, and delete prescriptions with all necessary fields validated 
 
-**Prescription List Page**
-- Initially fetches prescriptions for the current month in ascending order by date
-- Allows filtering by start and end dates, automatically updating the list on filter changes
-- Clear filter resets to show the current month's prescriptions
+## 🔍 Feature Overview
 
-**PDF Prescription Download**
-- Generates professional layout with patient/doctor info and medicines
-- Includes a QR code linking back to prescription details
-- Fully styled and print-ready
+### 📋 Prescription Management
+- Create, edit, and delete prescriptions
+- Auto-sorted list by date, with date-range filters
+- Real-time form validation
 
-**Report Page**
-- Displays prescription counts per day in ascending order for easy tracking
+### 🧾 PDF Generator
+- Doctor & patient info
+- QR code linking to prescription details
+- Print-ready and professional design
 
-**COVID-19 Statistics API**
-- Consumes a third-party backend API to fetch and display COVID-19 stats dynamically
+### 📈 Reports Page
+- Daily prescription count for analytics
+- Filterable by date
+
+### 🦠 COVID-19 Stats
+- Displays live COVID data fetched from a third-party API
+
+### 🧑‍💼 Admin Panel
+- View all users
+- Assign roles
+- Manage doctors and system metadata
+
+---
+
+---
+
+## ✅ Summary
+
+- Login with Doctor/Admin
+- Manage User Roles
+- Manage secure JWT sessions
+- Create/edit prescriptions
+- Generate PDFs with QR code
+- View analytics and system reports
+- Use Swagger to explore and test APIs
 
 ---
 
 ## 🙌 Final Notes
 
-Once both frontend and backend are running:
-- Register a User
-- Log in using the user credentials
-- Create a prescription
-- Explore prescriptions, reports and features
-
----
-
-## Important
-- Since the backend uses an in-memory H2 database, all data is lost when the backend server stops. If you restart the backend without logging out from the frontend, your stored JWT token will become invalid. In this case, please clear the token from your browser’s local storage manually.
-- If you attempt to logout with an invalid token (because the user no longer exists in the backend), the backend will safely ignore the request. This behavior prevents errors but requires you to clear tokens to avoid inconsistencies.
----
-
-Enjoy coding and enhancing the Prescription Generator! 🎉
+**Happy coding with the Prescription Generator!** 💊📄

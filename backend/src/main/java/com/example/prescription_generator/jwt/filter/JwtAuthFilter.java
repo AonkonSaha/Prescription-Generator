@@ -1,5 +1,6 @@
 package com.example.prescription_generator.jwt.filter;
 
+import com.example.prescription_generator.exceptions.UserNotFoundException;
 import com.example.prescription_generator.jwt.utils.JwtUtils;
 import com.example.prescription_generator.model.entity.MUser;
 import com.example.prescription_generator.repository.UserRepo;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -47,7 +49,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             UserDetails userDetails = userDetailsService.loadUserByUsername(contact);
            Optional<MUser> user = userRepo.findByContact(contact);
             if(user.isEmpty()) {
-                throw new IllegalArgumentException("User doesn't exit..");
+                throw new UserNotFoundException("User doesn't exit..");
             }
             if (jwtUtils.validateToken(token, contact)) {
                 System.out.println("Inner auth filter");

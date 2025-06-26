@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidUserArgumentException.class)
     public ResponseEntity<ErrorResponse> handleUserValidationException(InvalidUserArgumentException exception, HttpServletRequest request) {
-        return buildError(HttpStatus.NOT_ACCEPTABLE, exception.getMessage(), request.getRequestURI());
+        return buildError(HttpStatus.BAD_REQUEST, exception.getMessage(), request.getRequestURI());
     }
 
     @ExceptionHandler(UserNotFoundException.class)
@@ -25,16 +25,20 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidLoginArgumentException.class)
     public ResponseEntity<ErrorResponse> handleUserCredentialException(InvalidLoginArgumentException exception, HttpServletRequest request) {
-        return buildError(HttpStatus.NOT_FOUND, exception.getMessage(), request.getRequestURI());
+        return buildError(HttpStatus.UNAUTHORIZED, exception.getMessage(), request.getRequestURI());
     }
 
     @ExceptionHandler(InvalidPrescriptionArgumentException.class)
     public ResponseEntity<ErrorResponse> handlePrescriptionValidationException(InvalidPrescriptionArgumentException exception, HttpServletRequest request) {
-        return buildError(HttpStatus.NOT_ACCEPTABLE, exception.getMessage(), request.getRequestURI());
+        return buildError(HttpStatus.BAD_REQUEST, exception.getMessage(), request.getRequestURI());
     }
 
     @ExceptionHandler(PrescriptionNotFoundException.class)
     public ResponseEntity<ErrorResponse> handlePrescriptionExitException(PrescriptionNotFoundException exception, HttpServletRequest request) {
+        return buildError(HttpStatus.NOT_FOUND, exception.getMessage(), request.getRequestURI());
+    }
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRoleException(RoleNotFoundException exception, HttpServletRequest request) {
         return buildError(HttpStatus.NOT_FOUND, exception.getMessage(), request.getRequestURI());
     }
 

@@ -17,7 +17,7 @@ function PrescriptionList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`${baseURL}/api/prescription/get/all/recent/month`, {
+    fetch(`${baseURL}/api/prescription/v1/get/all/recent/month`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -45,8 +45,8 @@ function PrescriptionList() {
       setLoading(true);
       const url =
         startDate && endDate
-          ? `${baseURL}/api/prescription/get/all/${startDate}/${endDate}`
-          : `${baseURL}/api/prescription/get/all/recent/month`;
+          ? `${baseURL}/api/prescription/v1/get/all/${startDate}/${endDate}`
+          : `${baseURL}/api/prescription/v1/get/all/recent/month`;
 
       try {
         const response = await fetch(url, {
@@ -92,7 +92,7 @@ function PrescriptionList() {
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this prescription?")) {
-      fetch(`${baseURL}/api/prescription/delete/${id}`, {
+      fetch(`${baseURL}/api/prescription/v1/delete/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -109,7 +109,7 @@ function PrescriptionList() {
 
   const handleDownload = async (id) => {
     try {
-      const response = await fetch(`${baseURL}/api/prescription/pdf/generate/${id}`, {
+      const response = await fetch(`${baseURL}/api/prescription/v1/pdf/generate/${id}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

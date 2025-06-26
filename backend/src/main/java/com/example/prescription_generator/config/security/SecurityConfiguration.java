@@ -25,16 +25,21 @@ public class SecurityConfiguration  {
     JwtAuthFilter jwtAuthFilter;
     public static final String[] DOCTOR_URLS = {
             "/api/prescription/**",
-            "/api/auth/logout"
+            "/api/auth/v1/logout",
+            "/api/third-party/**",
+    };
+    public static final String[] ADMIN_URLS = {
+            "/api/admin/**",
+            "/api/role/**"
     };
     public static final String[] PUBLIC_URLS = {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/swagger-ui.html",
             "/h2-console/**",
-            "/api/auth/login",
-            "/api/auth/register",
-            "/logo.png"
+            "/api/auth/v1/login",
+            "/api/auth/v1/register",
+
     };
 
     @Bean
@@ -43,7 +48,8 @@ public class SecurityConfiguration  {
                 csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(DOCTOR_URLS).hasRole("DOCTOR")
+                        .requestMatchers(DOCTOR_URLS).hasAnyRole("DOCTOR","ADMIN")
+                        .requestMatchers(ADMIN_URLS).hasRole("ADMIN")
                         .requestMatchers(PUBLIC_URLS).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

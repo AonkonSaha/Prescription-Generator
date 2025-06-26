@@ -2,10 +2,13 @@ package com.example.prescription_generator.model.mapper;
 import com.example.prescription_generator.model.dto.UserDTO;
 import com.example.prescription_generator.model.entity.DoctorProfile;
 import com.example.prescription_generator.model.entity.MUser;
+import com.example.prescription_generator.model.entity.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -21,8 +24,11 @@ public class UserMapper {
                 .name(userDTO.getName())
                 .isActive(false)
                 .password(passwordEncoder.encode(userDTO.getPassword()))
-                .role("DOCTOR")
                 .build();
+        Role role=new Role();
+        role.setRoleName("DOCTOR");
+        role.getUsers().add(user);
+        user.getRoles().add(role);
         DoctorProfile doctorProfile=DoctorProfile.builder()
                 .doctorName(userDTO.getName())
                 .designation(userDTO.getDesignation())
@@ -49,4 +55,11 @@ public class UserMapper {
     }
 
 
+    public List<UserDTO> toUserDTOS(List<MUser> allUsers) {
+        List<UserDTO> userDTOS = new ArrayList<>();
+        for (MUser user : allUsers) {
+            userDTOS.add(toUserDTO(user));
+        }
+        return userDTOS;
+    }
 }

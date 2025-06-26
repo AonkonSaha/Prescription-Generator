@@ -16,7 +16,7 @@ const Reports = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get(`${baseURL}/api/prescription/report`, {
+      .get(`${baseURL}/api/prescription/v1/report`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -1,6 +1,8 @@
 package com.example.prescription_generator.service.imp;
 
+import com.example.prescription_generator.exceptions.UserNotFoundException;
 import com.example.prescription_generator.model.entity.MUser;
+import com.example.prescription_generator.model.entity.Role;
 import com.example.prescription_generator.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,13 +21,15 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepo userRepo;
 
     @Override
-        public UserDetails loadUserByUsername(String contact) throws UsernameNotFoundException {
+        public UserDetails loadUserByUsername(String contact) {
             Optional<MUser> user = userRepo.findByContact(contact);
             if(user.isEmpty()) {
-                throw new UsernameNotFoundException("User not found...");
+                throw new UserNotFoundException("User not found...");
             }
             Set<SimpleGrantedAuthority> authorities = new HashSet<>();
-            authorities.add(new SimpleGrantedAuthority("ROLE_DOCTOR"));
+            for (Role role : user.get().getRoles() ){
+                authorities.add(new SimpleGrantedAuthority("ROLE_"+role.getRoleName()));
+            }
             return new org.springframework.security.core.userdetails.User(
                     user.get().getContact(),
                     user.get().getPassword(),

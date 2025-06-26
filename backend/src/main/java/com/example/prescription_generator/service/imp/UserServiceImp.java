@@ -1,5 +1,6 @@
 package com.example.prescription_generator.service.imp;
 
+import com.example.prescription_generator.exceptions.UserNotFoundException;
 import com.example.prescription_generator.jwt.utils.JwtUtils;
 import com.example.prescription_generator.model.dto.LoginDTO;
 import com.example.prescription_generator.model.dto.PasswordDTO;
@@ -14,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -48,7 +50,7 @@ public class UserServiceImp implements UserService {
     public void logoutUser(String contact) {
         MUser user=findUserByContact(contact);
         if(user==null){
-            return;
+            throw new UserNotFoundException("User not found");
         }
         user.setIsActive(false);
         saveUser(user);
@@ -64,8 +66,26 @@ public class UserServiceImp implements UserService {
     public MUser findUserByContact(String contact) {
         Optional<MUser> mUser=userRepo.findByContact(contact);
         if(mUser.isEmpty()) {
-            return null;
+           throw new UserNotFoundException("User not found");
         }
         return mUser.get();
+    }
+
+    @Override
+    public void deleteUser(String contact) {
+        Optional<MUser> mUser=userRepo.findByContact(contact);
+        if(mUser.isEmpty()) {
+            throw new UserNotFoundException("User not found");
+        }
+        userRepo.delete(mUser.get());
+    }
+
+    @Override
+    public List<MUser> findAllUsers() {
+        List<MUser> users=userRepo.findAll();
+        if(users.isEmpty()) {
+            throw new UserNotFoundException("User not found");
+        }
+        return users;
     }
 }

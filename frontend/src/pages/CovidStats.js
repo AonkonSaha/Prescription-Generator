@@ -10,7 +10,7 @@ function CovidStats() {
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    axios.get(`${baseURL}/api/third-party/covid-stats`, {
+    axios.get(`${baseURL}/api/third-party/v1/covid-stats`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(response => setData(response.data))

@@ -11,7 +11,7 @@ function Navbar() {
 const handleLogout = async () => {
 
   try {
-    const response = await fetch(`${baseURL}/api/auth/logout`, {
+    const response = await fetch(`${baseURL}/api/auth/v1/logout`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -23,9 +23,12 @@ const handleLogout = async () => {
       localStorage.removeItem("token");
       navigate("/login");
     } else {
+      alert("Logout Failed: "+ await response.text());
+
       console.error("Logout failed:", await response.text());
     }
   } catch (error) {
+    alert("Logout Failed: "+error);
     console.error("Logout error:", error);
   }
 };

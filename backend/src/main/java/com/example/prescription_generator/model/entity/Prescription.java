@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,7 +30,6 @@ public class Prescription {
     private Integer patientAge;
     @Column(name="patient_gender",nullable = false)
     private String patientGender;
-
     @ElementCollection
     @CollectionTable(name = "prescription_diagnosis", joinColumns = @JoinColumn(name = "prescription_id"))
     @Column(name = "diagnosis")

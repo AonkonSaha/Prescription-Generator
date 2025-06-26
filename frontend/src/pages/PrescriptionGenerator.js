@@ -131,7 +131,7 @@ function PrescriptionGenerator() {
     }
 
     try {
-      const response = await fetch(`${baseURL}/api/prescription/register`, {
+      const response = await fetch(`${baseURL}/api/prescription/v1/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

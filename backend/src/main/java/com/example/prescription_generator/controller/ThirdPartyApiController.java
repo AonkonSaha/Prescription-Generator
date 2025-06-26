@@ -17,7 +17,7 @@ public class ThirdPartyApiController {
 
     private final ThirdPartyApiService thirdPartyApiService;
 
-    @GetMapping("/covid-stats")
+    @GetMapping("/v1/covid-stats")
     public ResponseEntity<List<CovidCountryStats>> getCovidStats() {
         return ResponseEntity.ok(thirdPartyApiService.getCovidCountryStats());
     }

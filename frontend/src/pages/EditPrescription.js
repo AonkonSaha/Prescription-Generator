@@ -29,7 +29,7 @@ function EditPrescription() {
   useEffect(() => {
     async function fetchPrescription() {
       try {
-        const res = await fetch(`${baseURL}/api/prescription/get/${id}`, {
+        const res = await fetch(`${baseURL}/api/prescription/v1/get/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -161,7 +161,7 @@ function EditPrescription() {
     if (!validate()) return;
 
     try {
-      const response = await fetch(`${baseURL}/api/prescription/update/${id}`, {
+      const response = await fetch(`${baseURL}/api/prescription/v1/update/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
