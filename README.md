@@ -88,16 +88,19 @@ npm run start
 
 ---
 
-## 🧪 API Documentation (Swagger UI)
+## 📘 Swagger API Documentation
 
-Once the backend is running, access Swagger UI here:  
-📘 [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+Auto-generated documentation is available via:
 
-Includes:
-- Auth endpoints (login, register)
-- Prescription APIs
-- Role-based secured endpoints (Admin, Doctor)
-- Complete request/response models with validation
+\`\`\`
+http://localhost:8080/swagger-ui.html
+\`\`\`
+
+All endpoints include:
+- ✨ `@Operation` summaries
+- 🧾 `@ApiResponse` and `@Schema`-based response structures
+- 🔐 `@SecurityRequirement` for secured routes
+- 🧩 `@Parameter` descriptions for `@PathVariable` inputs
 
 ---
 
