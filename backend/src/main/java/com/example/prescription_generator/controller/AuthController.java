@@ -73,7 +73,7 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginDTO loginDTO) {
         MUser user = userService.findUserByContact(loginDTO.getMobileNumber());
         if (user == null) {
-            throw new UserNotFoundException("Mobile Number doesn't exist!");
+            throw new InvalidLoginArgumentException("Mobile Number doesn't exist!");
         }
         if (!userValidationService.isExitUserPassword(loginDTO.getMobileNumber(), loginDTO.getPassword())) {
             throw new InvalidLoginArgumentException("Password is incorrect!");

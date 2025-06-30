@@ -1,6 +1,10 @@
 package com.example.prescription_generator.config.security;
 
+import com.example.prescription_generator.exceptions.handler.CustomAccessDeniedHandler;
 import com.example.prescription_generator.jwt.filter.JwtAuthFilter;
+import com.example.prescription_generator.jwt.utils.JwtUtils;
+import com.example.prescription_generator.repository.UserRepo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,11 +14,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.util.List;
 
@@ -22,7 +28,10 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfiguration  {
     @Autowired
-    JwtAuthFilter jwtAuthFilter;
+    private CustomAccessDeniedHandler customAccessDeniedHandler;
+    @Autowired
+    private JwtAuthFilter jwtAuthFilter;
+
     public static final String[] DOCTOR_URLS = {
             "/api/prescription/**",
             "/api/auth/v1/logout",
@@ -47,6 +56,9 @@ public class SecurityConfiguration  {
         http.
                 csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(DOCTOR_URLS).hasAnyRole("DOCTOR","ADMIN")
                         .requestMatchers(ADMIN_URLS).hasRole("ADMIN")

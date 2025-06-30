@@ -1,5 +1,6 @@
 package com.example.prescription_generator.service.imp;
 
+import com.example.prescription_generator.exceptions.InvalidLoginArgumentException;
 import com.example.prescription_generator.exceptions.UserNotFoundException;
 import com.example.prescription_generator.jwt.utils.JwtUtils;
 import com.example.prescription_generator.model.dto.LoginDTO;
@@ -66,7 +67,7 @@ public class UserServiceImp implements UserService {
     public MUser findUserByContact(String contact) {
         Optional<MUser> mUser=userRepo.findByContact(contact);
         if(mUser.isEmpty()) {
-           throw new UserNotFoundException("User not found");
+           throw new InvalidLoginArgumentException("User not found");
         }
         return mUser.get();
     }

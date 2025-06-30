@@ -1,5 +1,6 @@
 package com.example.prescription_generator.service.imp;
 
+import com.example.prescription_generator.exceptions.UserContactNotFoundException;
 import com.example.prescription_generator.exceptions.UserNotFoundException;
 import com.example.prescription_generator.model.entity.MUser;
 import com.example.prescription_generator.model.entity.Role;
@@ -24,7 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         public UserDetails loadUserByUsername(String contact) {
             Optional<MUser> user = userRepo.findByContact(contact);
             if(user.isEmpty()) {
-                throw new UserNotFoundException("User not found...");
+                throw new UserContactNotFoundException("User not found");
             }
             Set<SimpleGrantedAuthority> authorities = new HashSet<>();
             for (Role role : user.get().getRoles() ){
